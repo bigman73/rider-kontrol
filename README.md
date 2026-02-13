@@ -1,6 +1,6 @@
 # Rider Kontrol
 
-![Logo](assets/logo.png){ width=200px }
+<img src="assets/logo.png" width="600" />
 
 A Bluetooth Low Energy (BLE) navigation remote for riders, by riders.
 
