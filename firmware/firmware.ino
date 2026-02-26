@@ -1,10 +1,4 @@
-#define SERIAL_BAUD_RATE 9600
-#define SERIAL_TIMEOUT_MSEC 250
-#define BLINK_INTERVAL_MSEC 500
-
-#define FIRMWARE_VERSION "0.1.0"
-#define FIRMWARE_NAME "Rider Kontrol"
-#define FIRMWARE_INITIALIZED_MESSAGE FIRMWARE_NAME " v" FIRMWARE_VERSION " initialized"
+#include "constants.h"
 
 /**
  * Print the initialized message to the serial port.
@@ -43,12 +37,19 @@ bool ledOn = false;
 void handleToggleLed() {
   unsigned long now = millis();
 
-  // Check if the blink interval has elapsed.
-  if (now - lastBlinkTime >= BLINK_INTERVAL_MSEC) {
+  // Check if the LED blink interval has elapsed.
+  if (now - lastBlinkTime >= LED_BLINK_INTERVAL_MSEC) {
     // Toggle the led state.
     ledOn = !ledOn;
-    // Set the led state.
-    digitalWrite(LED_BUILTIN, ledOn ? HIGH : LOW);
+    // Set the onboard led colors.
+    neopixelWrite(ONBOARD_LED_PIN, 
+      ledOn ? LED_ON_RED : LED_OFF_RED, 
+      ledOn ? LED_ON_GREEN : LED_OFF_GREEN, 
+      ledOn ? LED_ON_BLUE : LED_OFF_BLUE);
+
+    // Set the external led state.
+    // TODO: Just for testing, should be removed later. The external LED will have its own code to handle the blink or other application modes.
+    digitalWrite(EXTERNAL_LED_PIN, ledOn ? HIGH : LOW);
     // Update the last blink time.
     lastBlinkTime = now;
 
@@ -60,12 +61,20 @@ void handleToggleLed() {
   }
 }
 
+// --------------------------------------------------------------------------
+
 /**
  * The setup function runs once when you press reset or power the board.
  */
  void setup() {
+  delay(100); // Let the C3 stabilize
+
   // initialize digital pin LED_BUILTIN as an output.
-  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(ONBOARD_LED_PIN, OUTPUT);
+  // initialize digital pin EXTERNAL_LED_PIN as an output.
+  pinMode(EXTERNAL_LED_PIN, OUTPUT);
+
+  neopixelWrite(ONBOARD_LED_PIN, LED_OFF_RED, LED_OFF_GREEN, LED_OFF_BLUE);
 
   Serial.begin(SERIAL_BAUD_RATE);
   delay(SERIAL_TIMEOUT_MSEC);  // Wait for serial port to connect and initialize
