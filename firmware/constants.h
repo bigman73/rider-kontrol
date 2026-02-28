@@ -8,6 +8,7 @@ constexpr unsigned long SERIAL_TIMEOUT_MSEC = 250;
 
 // LED timing
 constexpr unsigned long LED_BLINK_INTERVAL_MSEC = 2000;
+constexpr unsigned long LED_DIAG_BLINK_INTERVAL_MSEC = 500;
 
 // Pin assignments
 // Note: On Lolin C3 Mini v2.1.0 the onboard LED is RGB color and uses pin 7
@@ -21,6 +22,13 @@ constexpr uint8_t LED_ON_GREEN = 0;
 constexpr uint8_t LED_OFF_GREEN = 20;
 constexpr uint8_t LED_ON_BLUE = 20;
 constexpr uint8_t LED_OFF_BLUE = 0;
+
+constexpr uint8_t LED_DIAG_ON_RED = 40;
+constexpr uint8_t LED_DIAG_OFF_RED = 0;
+constexpr uint8_t LED_DIAG_ON_GREEN = 0;
+constexpr uint8_t LED_DIAG_OFF_GREEN = 0;
+constexpr uint8_t LED_DIAG_ON_BLUE = 0;
+constexpr uint8_t LED_DIAG_OFF_BLUE = 40;
 
 // Firmware metadata
 constexpr const char* FIRMWARE_VERSION = "0.1.0";

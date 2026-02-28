@@ -1,4 +1,5 @@
 #include "constants.h"
+#include "vars.h"
 #include <BleKeyboard.h>
 
 BleKeyboard bleKeyboard(
@@ -31,37 +32,53 @@ void printDebugMessage(String message) {
   printSerialMessage("DEBUG: " + message);
 }
 
-// Global variables for the program.
-int loopCount = 0;
-unsigned long lastBlinkTime = 0;
-bool ledOn = false;
-
 /**
  * Handle the toggle of the led.
  */
 void handleToggleLed() {
   unsigned long now = millis();
 
-  // Check if the LED blink interval has elapsed.
-  if (now - lastBlinkTime >= LED_BLINK_INTERVAL_MSEC) {
-    // Toggle the led state.
-    ledOn = !ledOn;
-    // Set the onboard led colors.
-    neopixelWrite(ONBOARD_LED_PIN, 
-      ledOn ? LED_ON_RED : LED_OFF_RED, 
-      ledOn ? LED_ON_GREEN : LED_OFF_GREEN, 
-      ledOn ? LED_ON_BLUE : LED_OFF_BLUE);
+  if (_programState == ProgramState::Normal) {
+    // Check if the LED blink interval has elapsed.
+    if (now - _lastBlinkTime >= LED_BLINK_INTERVAL_MSEC) {
+      // Toggle the led state.
+      ledOn = !ledOn;
+      // Set the onboard led colors.
+      neopixelWrite(ONBOARD_LED_PIN, 
+        ledOn ? LED_ON_RED : LED_OFF_RED, 
+        ledOn ? LED_ON_GREEN : LED_OFF_GREEN, 
+        ledOn ? LED_ON_BLUE : LED_OFF_BLUE);
 
-    // Set the external led state.
-    // TODO: Just for testing, should be removed later. The external LED will have its own code to handle the blink or other application modes.
-    digitalWrite(EXTERNAL_LED_PIN, ledOn ? HIGH : LOW);
-    // Update the last blink time.
-    lastBlinkTime = now;
+      // Set the external led state.
+      // TODO: Just for testing, should be removed later. The external LED will have its own code to handle the blink or other application modes.
+      digitalWrite(EXTERNAL_LED_PIN, ledOn ? HIGH : LOW);
+      // Update the last blink time.
+      _lastBlinkTime = now;
 
-    // Print the loop count if the led is on.
-    if (ledOn) {
-      printDebugMessage("Blink " + String(loopCount));
-      loopCount++;
+      // Print the loop count if the led is on.
+      if (ledOn) {
+        printDebugMessage("Blink " + String(loopCount));
+        loopCount++;
+      }
+    }
+  }
+
+  if (_programState == ProgramState::Diag) {
+     // Check if the LED diagnostics blink interval has elapsed.
+     if (now - _lastBlinkTime >= LED_DIAG_BLINK_INTERVAL_MSEC) {
+      // Toggle the led state.
+      ledOn = !ledOn;
+      // Set the onboard led colors.
+      neopixelWrite(ONBOARD_LED_PIN, 
+        ledOn ? LED_DIAG_ON_RED : LED_DIAG_OFF_RED, 
+        ledOn ? LED_DIAG_ON_GREEN : LED_DIAG_OFF_GREEN, 
+        ledOn ? LED_DIAG_ON_BLUE : LED_DIAG_OFF_BLUE);
+
+      // Set the external led state.
+      // TODO: Just for testing, should be removed later. The external LED will have its own code to handle the blink or other application modes.
+      digitalWrite(EXTERNAL_LED_PIN, ledOn ? HIGH : LOW);
+      // Update the last blink time.
+      _lastBlinkTime = now;
     }
   }
 }
@@ -97,7 +114,85 @@ void setupBluetooth() {
   printInitializedMessage();
 }
 
-bool firstBLE = true;
+void handleSerialInput() {
+  if (Serial.available() > 0) {
+    // Read input until a newline character is received
+    String input = Serial.readStringUntil('\n');
+    input.trim(); // Clean up spaces or carriage returns
+    input.toLowerCase(); // Make it case-insensitive
+
+    // TODO: Add more commands
+    if (input == "diag") {
+      _programState = ProgramState::Diag;
+      _lastBlinkTime = 0;
+      printDebugMessage("Program State: Diagnostics Mode");
+    } else if (input == "normal") {
+      _programState = ProgramState::Normal;
+      _lastBlinkTime = 0;
+      printDebugMessage("Program State: Normal Mode");
+    } else if (input == "state") {
+      Serial.printf("Current program state: %u\n", _programState);
+    } else {
+      if (_programState == ProgramState::Diag) {
+        if (input == "hello") {
+          printDebugMessage("Command: Hello World BT test");
+          bleKeyboard.print("Hello world");
+        } else if (input == "up") {
+          printDebugMessage("Command: Up arrow");
+          bleKeyboard.write(KEY_UP_ARROW);
+        }
+        else if (input == "down") {
+          printDebugMessage("Command: Down arrow");
+          delay(2000);
+          bleKeyboard.write(KEY_DOWN_ARROW);
+        }
+        else if (input == "left") {
+          printDebugMessage("Command: Left arrow");
+          bleKeyboard.write(KEY_LEFT_ARROW);
+        }
+        else if (input == "right") {
+          printDebugMessage("Command: Right arrow");
+          bleKeyboard.write(KEY_RIGHT_ARROW);
+        }
+        else if (input == "zin") {
+          printDebugMessage("Command: Zoom In");
+          bleKeyboard.write('+');
+        }
+        else if (input == "zout") {
+          printDebugMessage("Command: Zoom Out");
+          bleKeyboard.write('-');
+        }
+        else if (input == "center") {
+          printDebugMessage("Command: Center");
+          bleKeyboard.write('0');
+        }
+        else if (input == "play") {
+          printDebugMessage("Command: Play/Pause Media");
+          bleKeyboard.write(KEY_MEDIA_PLAY_PAUSE);
+        }
+        else if (input == "next") {
+          printDebugMessage("Command: Next Track");
+          bleKeyboard.write(KEY_MEDIA_NEXT_TRACK);
+        }
+        else if (input == "mute") {
+          printDebugMessage("Command: Mute");
+          bleKeyboard.write(KEY_MEDIA_MUTE);
+        }
+        else {
+          Serial.printf("Unknown command: %s\n", input);
+        }
+      } else {
+        // Normal
+
+        if (input == "todo") {
+          // TODO
+        } else {
+          Serial.printf("Unknown command: %s\n", input);
+        }
+      }
+    }
+  }
+}
 
 /**
  * The loop function runs over and over again forever.
@@ -105,13 +200,17 @@ bool firstBLE = true;
 void loop() {
   handleToggleLed();
 
-  if (firstBLE && bleKeyboard.isConnected()) {
-    firstBLE = false;
+  handleSerialInput();
+
+  if (_firstBLE && bleKeyboard.isConnected()) {
+    _firstBLE = false;
     Serial.println("Connected to BT Keyboard");
   }
 
-  if (!firstBLE && !bleKeyboard.isConnected()) {
-    firstBLE = true;
+  if (!_firstBLE && !bleKeyboard.isConnected()) {
+    _firstBLE = true;
     Serial.println("Disconnected from BT Keyboard");
   }
+
+ 
 }
