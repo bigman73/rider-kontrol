@@ -1,4 +1,9 @@
 #include "constants.h"
+#include <BleKeyboard.h>
+
+BleKeyboard bleKeyboard(
+  BLUETOOTH_DEVICE, BLUETOOTH_MANUFACTURER, 
+  BLUETOOTH_BATT_LEVEL_DEFAULT);
 
 /**
  * Print the initialized message to the serial port.
@@ -64,10 +69,18 @@ void handleToggleLed() {
 // --------------------------------------------------------------------------
 
 /**
+  Setup bluetooth
+ */
+void setupBluetooth() {
+  Serial.println("Starting BLE Keyboard");
+  bleKeyboard.begin();
+}
+
+/**
  * The setup function runs once when you press reset or power the board.
  */
  void setup() {
-  delay(100); // Let the C3 stabilize
+  delay(INITIAL_STABLILIZE_INTERVAL_MSEC); // Let the chip stabilize
 
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(ONBOARD_LED_PIN, OUTPUT);
@@ -79,12 +92,26 @@ void handleToggleLed() {
   Serial.begin(SERIAL_BAUD_RATE);
   delay(SERIAL_TIMEOUT_MSEC);  // Wait for serial port to connect and initialize
 
+  setupBluetooth();
+
   printInitializedMessage();
 }
+
+bool firstBLE = true;
 
 /**
  * The loop function runs over and over again forever.
  */
 void loop() {
   handleToggleLed();
+
+  if (firstBLE && bleKeyboard.isConnected()) {
+    firstBLE = false;
+    Serial.println("Connected to BT Keyboard");
+  }
+
+  if (!firstBLE && !bleKeyboard.isConnected()) {
+    firstBLE = true;
+    Serial.println("Disconnected from BT Keyboard");
+  }
 }
