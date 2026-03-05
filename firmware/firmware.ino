@@ -42,23 +42,23 @@ void handleToggleLed() {
     // Check if the LED blink interval has elapsed.
     if (now - _lastBlinkTime >= LED_BLINK_INTERVAL_MSEC) {
       // Toggle the led state.
-      ledOn = !ledOn;
+      _ledOn = !_ledOn;
       // Set the onboard led colors.
       neopixelWrite(ONBOARD_LED_PIN, 
-        ledOn ? LED_ON_RED : LED_OFF_RED, 
-        ledOn ? LED_ON_GREEN : LED_OFF_GREEN, 
-        ledOn ? LED_ON_BLUE : LED_OFF_BLUE);
+        _ledOn ? LED_ON_RED : LED_OFF_RED, 
+        _ledOn ? LED_ON_GREEN : LED_OFF_GREEN, 
+        _ledOn ? LED_ON_BLUE : LED_OFF_BLUE);
 
       // Set the external led state.
       // TODO: Just for testing, should be removed later. The external LED will have its own code to handle the blink or other application modes.
-      digitalWrite(EXTERNAL_LED_PIN, ledOn ? HIGH : LOW);
+      digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
       // Update the last blink time.
       _lastBlinkTime = now;
 
       // Print the loop count if the led is on.
-      if (ledOn) {
-        printDebugMessage("Blink " + String(loopCount));
-        loopCount++;
+      if (_ledOn) {
+        printDebugMessage("Blink " + String(_loopCount));
+        _loopCount++;
       }
     }
   }
@@ -67,16 +67,16 @@ void handleToggleLed() {
      // Check if the LED diagnostics blink interval has elapsed.
      if (now - _lastBlinkTime >= LED_DIAG_BLINK_INTERVAL_MSEC) {
       // Toggle the led state.
-      ledOn = !ledOn;
+      _ledOn = !_ledOn;
       // Set the onboard led colors.
       neopixelWrite(ONBOARD_LED_PIN, 
-        ledOn ? LED_DIAG_ON_RED : LED_DIAG_OFF_RED, 
-        ledOn ? LED_DIAG_ON_GREEN : LED_DIAG_OFF_GREEN, 
-        ledOn ? LED_DIAG_ON_BLUE : LED_DIAG_OFF_BLUE);
+        _ledOn ? LED_DIAG_ON_RED : LED_DIAG_OFF_RED, 
+        _ledOn ? LED_DIAG_ON_GREEN : LED_DIAG_OFF_GREEN, 
+        _ledOn ? LED_DIAG_ON_BLUE : LED_DIAG_OFF_BLUE);
 
       // Set the external led state.
       // TODO: Just for testing, should be removed later. The external LED will have its own code to handle the blink or other application modes.
-      digitalWrite(EXTERNAL_LED_PIN, ledOn ? HIGH : LOW);
+      digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
       // Update the last blink time.
       _lastBlinkTime = now;
     }
@@ -114,6 +114,9 @@ void setupBluetooth() {
   printInitializedMessage();
 }
 
+/**
+  Handles the commands coming on serial input
+ */
 void handleSerialInput() {
   if (Serial.available() > 0) {
     // Read input until a newline character is received
@@ -125,6 +128,8 @@ void handleSerialInput() {
     if (input == "diag") {
       _programState = ProgramState::Diag;
       _lastBlinkTime = 0;
+      _diagEnterTime = millis();
+      Serial.printf("Timestamp of entry: %u\n", _diagEnterTime);
       printDebugMessage("Program State: Diagnostics Mode");
     } else if (input == "normal") {
       _programState = ProgramState::Normal;
@@ -195,6 +200,30 @@ void handleSerialInput() {
 }
 
 /**
+  Handles logic for diagnostics program state
+ */
+void handleDiagStateLogic() {
+  unsigned long now = millis();
+  
+  if (now - _diagEnterTime >= DIAG_MAX_TIME_MSEC) {
+    // Automatically exit diagnostics mode
+    Serial.println("Auto exiting diagnostics mode, back to normal mode");
+    _lastBlinkTime = 0;
+    _diagEnterTime = 0;
+    _programState = ProgramState::Normal;
+  }
+}
+
+/**
+  Handle the program logic, for all states
+ */
+void handleProgramStateLogic() {
+  if (_programState == ProgramState::Diag) {
+    handleDiagStateLogic();
+  }
+}
+
+/**
  * The loop function runs over and over again forever.
  */
 void loop() {
@@ -202,15 +231,15 @@ void loop() {
 
   handleSerialInput();
 
+  handleProgramStateLogic();
+
   if (_firstBLE && bleKeyboard.isConnected()) {
     _firstBLE = false;
-    Serial.println("Connected to BT Keyboard");
+    Serial.println("Connected as a BT Keyboard");
   }
 
   if (!_firstBLE && !bleKeyboard.isConnected()) {
     _firstBLE = true;
-    Serial.println("Disconnected from BT Keyboard");
+    Serial.println("Disconnected as a BT Keyboard");
   }
-
- 
 }

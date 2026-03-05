@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 // Serial configuration
-constexpr long SERIAL_BAUD_RATE = 9600;
+constexpr long SERIAL_BAUD_RATE = 115200;
 constexpr unsigned long SERIAL_TIMEOUT_MSEC = 250;
 
 // LED timing
@@ -17,17 +17,17 @@ constexpr uint8_t EXTERNAL_LED_PIN = 10;
 
 // LED color values
 constexpr uint8_t LED_ON_RED = 20;
-constexpr uint8_t LED_OFF_RED = 20;
-constexpr uint8_t LED_ON_GREEN = 0;
-constexpr uint8_t LED_OFF_GREEN = 20;
+constexpr uint8_t LED_ON_GREEN = 20;
 constexpr uint8_t LED_ON_BLUE = 20;
+constexpr uint8_t LED_OFF_RED = 0;
+constexpr uint8_t LED_OFF_GREEN = 20;
 constexpr uint8_t LED_OFF_BLUE = 0;
 
 constexpr uint8_t LED_DIAG_ON_RED = 40;
-constexpr uint8_t LED_DIAG_OFF_RED = 0;
-constexpr uint8_t LED_DIAG_ON_GREEN = 0;
-constexpr uint8_t LED_DIAG_OFF_GREEN = 0;
+constexpr uint8_t LED_DIAG_ON_GREEN = 40;
 constexpr uint8_t LED_DIAG_ON_BLUE = 0;
+constexpr uint8_t LED_DIAG_OFF_GREEN = 0;
+constexpr uint8_t LED_DIAG_OFF_RED = 0;
 constexpr uint8_t LED_DIAG_OFF_BLUE = 40;
 
 // Firmware metadata
@@ -40,5 +40,6 @@ constexpr uint8_t BLUETOOTH_BATT_LEVEL_DEFAULT = 100;
 
 
 // Initial time to stablize before setup starts
-constexpr uint8_t INITIAL_STABLILIZE_INTERVAL_MSEC = 100;
+constexpr unsigned long INITIAL_STABLILIZE_INTERVAL_MSEC = 100;
 
+constexpr unsigned long DIAG_MAX_TIME_MSEC = 60000;
