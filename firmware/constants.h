@@ -42,4 +42,4 @@ constexpr uint8_t BLUETOOTH_BATT_LEVEL_DEFAULT = 100;
 // Initial time to stablize before setup starts
 constexpr unsigned long INITIAL_STABLILIZE_INTERVAL_MSEC = 100;
 
-constexpr unsigned long DIAG_MAX_TIME_MSEC = 60000;
+constexpr unsigned long DIAG_MAX_TIME_MSEC = 120000;
