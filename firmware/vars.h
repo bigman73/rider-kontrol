@@ -12,3 +12,4 @@ extern unsigned long _diagEnterTime;
 extern int _loopCount;
 extern unsigned long _lastBlinkTime;
 extern bool _ledOn;
+extern bool _firstTimePan;

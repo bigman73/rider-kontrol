@@ -144,44 +144,88 @@ void handleSerialInput() {
           bleKeyboard.print("Hello world");
         } else if (input == "up") {
           printDebugMessage("Command: Up arrow");
-          bleKeyboard.write(KEY_UP_ARROW);
+          if (_firstTimePan) {
+            _firstTimePan = false;
+            bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
+            printDebugMessage("First time pan");
+          }
+
+          bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
         }
         else if (input == "down") {
           printDebugMessage("Command: Down arrow");
-          delay(2000);
-          bleKeyboard.write(KEY_DOWN_ARROW);
+          if (_firstTimePan) {
+            _firstTimePan = false;
+            bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
+            printDebugMessage("First time pan");
+          }
+
+          bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
         }
         else if (input == "left") {
           printDebugMessage("Command: Left arrow");
-          bleKeyboard.write(KEY_LEFT_ARROW);
+          if (_firstTimePan) {
+            _firstTimePan = false;
+            bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
+            printDebugMessage("First time pan");
+          }
+
+          bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
         }
         else if (input == "right") {
           printDebugMessage("Command: Right arrow");
-          bleKeyboard.write(KEY_RIGHT_ARROW);
+          if (_firstTimePan) {
+            _firstTimePan = false;
+            bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
+            printDebugMessage("First time pan");
+          }
+
+          bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
         }
         else if (input == "zin") {
           printDebugMessage("Command: Zoom In");
-          bleKeyboard.write('+');
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+        }
+        else if (input == "zinx") {
+          printDebugMessage("Command: Zoom In x5");
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
         }
         else if (input == "zout") {
           printDebugMessage("Command: Zoom Out");
-          bleKeyboard.write('-');
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
         }
-        else if (input == "center") {
-          printDebugMessage("Command: Center");
-          bleKeyboard.write('0');
+        else if (input == "zoutx") {
+          printDebugMessage("Command: Zoom Out x5");
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);          
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);          
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
+          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
+        }
+        else if (input == "ctr") {
+          printDebugMessage("Command: Center (Toggle follow)");
+          bleKeyboard.write(DMD2_KEYCODE_CENTER);
+          _firstTimePan = true;
+        }
+        else if (input == "onl") {
+          printDebugMessage("Command: Toogle online layer");
+          bleKeyboard.write(DMD2_KEYCODE_ONLINE_LAYER);
         }
         else if (input == "play") {
           printDebugMessage("Command: Play/Pause Media");
-          bleKeyboard.write(KEY_MEDIA_PLAY_PAUSE);
+          bleKeyboard.write(DMD2_KEYCODE_PLAY_PAUSE);
         }
         else if (input == "next") {
           printDebugMessage("Command: Next Track");
-          bleKeyboard.write(KEY_MEDIA_NEXT_TRACK);
+          bleKeyboard.write(DMD2_KEYCODE_NEXT_TRACK);
         }
         else if (input == "mute") {
           printDebugMessage("Command: Mute");
-          bleKeyboard.write(KEY_MEDIA_MUTE);
+          bleKeyboard.write(DMD2_KEYCODE_MUTE);
         }
         else {
           Serial.printf("Unknown command: %s\n", input);

@@ -7,3 +7,4 @@ unsigned long _diagEnterTime = 0;
 int _loopCount = 0;
 unsigned long _lastBlinkTime = 0;
 bool _ledOn = false;
+bool _firstTimePan = true;

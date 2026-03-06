@@ -51,3 +51,16 @@ Install the library NimBLE-Arduino by h2zero
 | Button 7 ⬆️   | Scroll map up - Key [TODO]||
 | Button 8 ⬇️   | Scroll map down - Key [TODO]||
 
+
+## DMD2 Remote Controller Setup
+
+The default key mappings for Map View, in DMD2, are conflicting with their other key mappings
+
+1. Pair and connect a BT keyboard (such as Logitech MX) to the DMD2 device (or Android with DMD2 ) app.
+2. Open the Setting menu (Cog icon, bottom menu)
+3. Menu -> Setup Remote Controller -> Map View
+4. Click on menu item Function 5 - `Follow Toggle` - This will be used as `Center` button
+5. On the keyboard, press the '0' key (left of backspace). Key code should be set to 7
+6. Similarly, menu item Function 6 - `Online Layer`, on the keyboard, press the '~' key. Key code => 68
+7. Function 7 | `Zoom In` - Key '+' => Key Code: 70
+8. Function 8 | `Zoom Out` - Key '-' => Key Code: 69
