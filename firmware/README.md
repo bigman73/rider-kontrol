@@ -1,26 +1,34 @@
-## Setup
-### ESP32 Board
-Install ESP32 board by Espressif, follow this document:
-https://randomnerdtutorials.com/getting-started-esp32-c3-super-mini/
+# Development Environment Setup
+## ESP32 Board
+Install ESP32 board by Espressif, follow this [Getting Started document](
+https://randomnerdtutorials.com/getting-started-esp32-c3-super-mini/)
 
-Verified: v2.0.17
-NOTE: DO NOT upgrade to 3.x, as it has breaking changes
+Verified version: v2.0.17
+
+> NOTE: DO NOT upgrade to 3.x, as it has breaking changes
 
 ## Required Arduino Libraries
 
 ### ESP32-BLE-Keyboard
-Install the library from: https://github.com/T-vK/ESP32-BLE-Keyboard#installation 
+> The library provides BLE Keyboard support for ESP32 boards such as the Lolin C3 Mini.
 
-Manual changes to `/Users/YOUR_USER/Documents/Arduino/libraries/ESP32_BLE_Keyboard/BleKeyboard.cpp`:
+1. Install the library from [ESP32-BLE-Keyboard Github](https://github.com/T-vK/ESP32-BLE-Keyboard#installation).
+
+2. Perform manual changes to `/Users/YOUR_USER/Documents/Arduino/libraries/ESP32_BLE_Keyboard/BleKeyboard.cpp`:
 1. Line #130 - Change to:
 ```
   pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
 ```
 
-### NimBLE-Arduino
+### Switch
+> The library provides debounced push button functionality.
 
-Install the library NimBLE-Arduino by h2zero
+Install the library `Switch` by Albert Van Dalen. 
 
+Github: [avdweb_Switch](https://github.com/avdwebLibraries/avdweb_Switch)
+
+
+# Configuration and settings
 ## Pin Layout
 
 // TODO: Image of buttons with labels for each button
@@ -38,7 +46,7 @@ Install the library NimBLE-Arduino by h2zero
 | 7          | Onboard RGB LED |
 | 10         | External LED |
 
-# Button Mapping
+## Button Mapping
 
 | Description | Usage Short | Usage Long |
 |------------------------------------|--|--|
