@@ -8,3 +8,7 @@ int _loopCount = 0;
 unsigned long _lastBlinkTime = 0;
 bool _ledOn = false;
 bool _firstTimePan = true;
+
+unsigned long _lastButtonOnCheckTime = 0;
+bool _firstButtonPush = false;
+bool _isButtonPressed = false;

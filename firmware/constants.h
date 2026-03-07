@@ -3,6 +3,18 @@
 #include <Arduino.h>
 #include <BleKeyboard.h>
 
+// Define the GPIO pins on the ESP32-C3 Mini board
+constexpr uint8_t GPIO_0 = 0;
+constexpr uint8_t GPIO_1 = 1;
+constexpr uint8_t GPIO_2 = 2;
+constexpr uint8_t GPIO_3 = 3;
+constexpr uint8_t GPIO_4 = 4;
+constexpr uint8_t GPIO_5 = 5;
+constexpr uint8_t GPIO_6 = 6;
+constexpr uint8_t GPIO_7 = 7;
+constexpr uint8_t GPIO_8 = 8;
+constexpr uint8_t GPIO_10 = 10;
+
 // Serial configuration
 constexpr long SERIAL_BAUD_RATE = 115200;
 constexpr unsigned long SERIAL_TIMEOUT_MSEC = 250;
@@ -13,8 +25,8 @@ constexpr unsigned long LED_DIAG_BLINK_INTERVAL_MSEC = 500;
 
 // Pin assignments
 // Note: On Lolin C3 Mini v2.1.0 the onboard LED is RGB color and uses pin 7
-constexpr uint8_t ONBOARD_LED_PIN = 7;
-constexpr uint8_t EXTERNAL_LED_PIN = 10;
+constexpr uint8_t ONBOARD_LED_PIN = GPIO_7;
+constexpr uint8_t EXTERNAL_LED_PIN = GPIO_10;
 
 // LED color values
 constexpr uint8_t LED_ON_RED = 20;
@@ -30,6 +42,10 @@ constexpr uint8_t LED_DIAG_ON_BLUE = 40;
 constexpr uint8_t LED_DIAG_OFF_GREEN = 0;
 constexpr uint8_t LED_DIAG_OFF_RED = 0;
 constexpr uint8_t LED_DIAG_OFF_BLUE = 40;
+
+constexpr uint8_t LED_BUTTON_PRESS_RED = 0;
+constexpr uint8_t LED_BUTTON_PRESS_GREEN = 70;
+constexpr uint8_t LED_BUTTON_PRESS_BLUE = 0;
 
 // Firmware metadata
 constexpr const char* FIRMWARE_VERSION = "0.0.2";
@@ -57,3 +73,11 @@ constexpr uint8_t DMD2_KEYCODE_ZOOM_OUT = '-';
 constexpr const uint8_t* DMD2_KEYCODE_PLAY_PAUSE = KEY_MEDIA_PLAY_PAUSE;
 constexpr const uint8_t* DMD2_KEYCODE_NEXT_TRACK = KEY_MEDIA_NEXT_TRACK;
 constexpr const uint8_t* DMD2_KEYCODE_MUTE = KEY_MEDIA_MUTE;
+
+// -- Button constants
+// Define the number of buttons
+constexpr int NUM_BUTTONS = 8;
+
+constexpr int REPEAT_PUSH_INTERVAL1_MSEC = 650;
+constexpr int REPEAT_PUSH_INTERVAL2_MSEC = 150;
+

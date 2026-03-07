@@ -1,11 +1,28 @@
 #include "constants.h"
 #include "vars.h"
 #include <BleKeyboard.h>
+#include <avdweb_Switch.h>
 
+// Initialize the BLE keyboard
 BleKeyboard bleKeyboard(
   BLUETOOTH_DEVICE, BLUETOOTH_MANUFACTURER, 
   BLUETOOTH_BATT_LEVEL_DEFAULT);
 
+// Declare an array of Switch objects, one for each button, and initialize them
+// All buttons are using internal pull up resistor. A button press lowers voltage of pin to 0V
+// NOTE: GPIO_7 is not used, as it is the onboard LED
+Switch buttons[NUM_BUTTONS] = {
+  Switch(GPIO_0, INPUT_PULLUP),
+  Switch(GPIO_1, INPUT_PULLUP),
+  Switch(GPIO_2, INPUT_PULLUP),
+  Switch(GPIO_3, INPUT_PULLUP),
+  Switch(GPIO_4, INPUT_PULLUP),
+  Switch(GPIO_5, INPUT_PULLUP),
+  Switch(GPIO_6, INPUT_PULLUP),
+  Switch(GPIO_8, INPUT_PULLUP)
+};
+
+// TODO: NMove to utility module
 /**
  * Print the initialized message to the serial port.
  */
@@ -16,6 +33,7 @@ void printInitializedMessage() {
   Serial.println(" initialized");
 }
 
+// TODO: NMove to utility module
 /**
  * Print a message line to the serial port.
  * @param message The message to print.
@@ -33,9 +51,9 @@ void printDebugMessage(String message) {
 }
 
 /**
- * Handle the toggle of the led.
+  Controls the onboard LED
  */
-void handleToggleLed() {
+void controlOnboardLED() {
   unsigned long now = millis();
 
   if (_programState == ProgramState::Normal) {
@@ -51,7 +69,7 @@ void handleToggleLed() {
 
       // Set the external led state.
       // TODO: Just for testing, should be removed later. The external LED will have its own code to handle the blink or other application modes.
-      digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
+      //digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
       // Update the last blink time.
       _lastBlinkTime = now;
 
@@ -76,11 +94,41 @@ void handleToggleLed() {
 
       // Set the external led state.
       // TODO: Just for testing, should be removed later. The external LED will have its own code to handle the blink or other application modes.
-      digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
+      //digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
       // Update the last blink time.
       _lastBlinkTime = now;
     }
   }
+}
+
+/*
+  Controls the external LED
+*/
+void controlExternalLED() {
+  // When button is pushed, override all other external LED logic
+  if (_isButtonPressed) {
+    digitalWrite(EXTERNAL_LED_PIN, HIGH);
+
+    return;
+  }
+
+  unsigned long now = millis();
+
+  if (_programState == ProgramState::Normal) {
+    // TODO: Should blink the external LED for some MSEC every MSEC (e.g., 100 msec then rest 1900 msec)
+  }
+
+  if (_programState == ProgramState::Diag) {
+    // TODO: Should blink the external LED fast for some MSEC every MSEC (e.g., 250 msec on off )
+  }
+}
+
+/**
+ * Control the LEDs.
+ */
+void controlLEDs() {
+  controlOnboardLED();
+  controlExternalLED();
 }
 
 // --------------------------------------------------------------------------
@@ -268,15 +316,74 @@ void handleProgramStateLogic() {
 }
 
 /**
- * The loop function runs over and over again forever.
+  Single button on press event handler
  */
-void loop() {
-  handleToggleLed();
+void handleButtonPress(int buttonIndex) {
+  Serial.printf("=> handleButtonPress: %u\n", buttonIndex);
+  _isButtonPressed = true;
+}
 
-  handleSerialInput();
+/**
+  Handles buttons press/release logic
+ */
+void handleButtons() {
+  // Poll all button state
+  for (int buttonIndex=0; buttonIndex < NUM_BUTTONS; buttonIndex++) {
+    buttons[buttonIndex].poll();
+  }
 
-  handleProgramStateLogic();
+  int now = millis();
 
+  for (int buttonIndex=0; buttonIndex < NUM_BUTTONS; buttonIndex++) {
+    Switch button = buttons[buttonIndex];
+
+    // Note: `pushed` is a one time transition on the trigger from unpushed to pushed, 
+    //  unlike `on` which is a current state of button
+    if (button.pushed()) { 
+      Serial.printf("Button %u pushed\n", buttonIndex);
+      // TODO: Constant for RGB colors, move RGB logic to interrupt handler, button press should override program state
+      // TODO: Introduce LED state of button push?
+      //neopixelWrite(ONBOARD_LED_PIN, 70,70,0);
+      // TODO: Keep lastOnCheck and _firstButtonPush per button
+      _lastButtonOnCheckTime = now;
+      _firstButtonPush = true;
+      handleButtonPress(buttonIndex);
+      return;
+    } else if (button.on() && 
+        _isButtonPressed && 
+        (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL1_MSEC)) {
+      // The button long press, interval 1
+      _lastButtonOnCheckTime = now;
+      _firstButtonPush = false;
+
+      Serial.printf("Button %u still pushed - 1st time\n", buttonIndex);
+      handleButtonPress(buttonIndex);
+      return;
+    } else if (button.on() && 
+        !_isButtonPressed && 
+        (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL2_MSEC)) {
+      // The button long press, interval 2
+      _lastButtonOnCheckTime = now;
+
+      Serial.printf("Button %u still pushed\n", buttonIndex);
+      handleButtonPress(buttonIndex);
+      return;
+    }
+
+    if (button.released()) {
+      Serial.printf("Button %u released\n", buttonIndex);
+
+      _isButtonPressed = false;
+      _firstButtonPush = false;
+      return;
+    }
+  }
+}
+
+/**
+  Handles the BLE Keyboard connection logic
+ */
+void handleBLEKeyboardConnection() {
   if (_firstBLE && bleKeyboard.isConnected()) {
     _firstBLE = false;
     Serial.println("Connected as a BT Keyboard");
@@ -286,4 +393,19 @@ void loop() {
     _firstBLE = true;
     Serial.println("Disconnected as a BT Keyboard");
   }
+}
+
+/**
+ * The loop function runs over and over again forever.
+ */
+void loop() {
+  controlLEDs();
+
+  handleSerialInput();
+
+  handleProgramStateLogic();
+
+  handleBLEKeyboardConnection();
+
+  handleButtons();
 }
