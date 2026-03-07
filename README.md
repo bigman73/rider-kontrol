@@ -11,11 +11,15 @@ There’s nothing more frustrating (or dangerous) than trying to poke at a touch
 ## 🚀 Features
 
 - Glove-Friendly: Large tactile buttons for easy navigation while riding.
-- BLE Connectivity: Mimics a standard HID keyboard—no companion app required.
+- BLE Connectivity: Mimics a standard HID keyboard — no companion app required.
 - Versatility: Built in and custom key maps, to support different navigation apps
+- Usability: Supports short and long button press (e.g., continous pan or zoom)
+- Modality: Has 4 different modes - Navigation (default), Configuration, Diagnostics and OTA (Over The Air firmware updates)
+- Deployment: Over-The-Air Updates allow updating the firmware without connecting the USB-C cable
 - Low Power: Optimized for the ESP32-C3 to ensure long battery life between charges, powered by a 5V USB (direct from motorcycle cockpit USB port, or converted from the motorcycle's 12V battery).
 - Weather Resistant: Designed to be housed in a 3D-printed, sealed enclosure.
 - Low cost: DYI project with fully open source firmware
+
 
 ## 🛠️ Hardware
 
