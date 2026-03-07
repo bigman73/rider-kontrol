@@ -31,10 +31,10 @@ Install the library NimBLE-Arduino by h2zero
 | 1          | Button 2 (-) |
 | 2          | Button 3 (P) |
 | 3          | Button 4 (C) |
-| 4          | Button 5 ⬅️ |
+| 4          | Button 5 ⬆️ | 
 | 5          | Button 6 ➡️ |
-| 6          | Button 7 ⬆️ |
-| 8          | Button 8 ⬇️ |
+| 6          | Button 7 ⬇️                          |
+| 8          | Button 8 ⬅️ |
 | 7          | Onboard RGB LED |
 | 10         | External LED |
 
