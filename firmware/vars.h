@@ -1,11 +1,9 @@
 #pragma once
 
 #include "constants.h"
+#include "buttonDefinition.h"
 #include <Arduino.h>
 #include <avdweb_Switch.h>
-
-// Program state (shared)
-enum class ProgramState { Normal, Diag };
 
 // Shared global variables – declared here, defined in vars.cpp
 extern bool _firstBLE;
@@ -20,5 +18,5 @@ extern unsigned long _lastButtonOnCheckTime;
 extern bool _firstButtonPush;
 extern bool _isButtonPressed;
 
-// Declare an array of Switch objects, one for each button
-extern Switch* _buttons[NUM_BUTTONS];
+// Declare an array of pointers to ButtonDefinition objects, one for each button
+extern ButtonDefinition* _buttons[NUM_BUTTONS];

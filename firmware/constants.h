@@ -3,6 +3,9 @@
 #include <Arduino.h>
 #include <BleKeyboard.h>
 
+// Program state (shared)
+enum class ProgramState { Normal, Diag };
+
 // Define the GPIO pins on the ESP32-C3 Mini board
 constexpr uint8_t GPIO_0 = 0;
 constexpr uint8_t GPIO_1 = 1;
@@ -75,6 +78,19 @@ constexpr const uint8_t* DMD2_KEYCODE_NEXT_TRACK = KEY_MEDIA_NEXT_TRACK;
 constexpr const uint8_t* DMD2_KEYCODE_MUTE = KEY_MEDIA_MUTE;
 
 // -- Button constants
+// Kinds of buttons
+// Continous - A press invokes the action, then waits for an interval, then continues invoking the action as long as the button is pressed
+// ShortLong - A short press and release invokes action 1 while long press invokes action 2
+enum class ButtonKind { Continous, ShortLong };
+
+// Actions that can be performed
+enum class RiderKontrolAction { 
+    ZoomIn, ZoomOut, 
+    PlayPauseMedia, MuteMedia, 
+    PanUp, PanRight, PanDown, PanLeft, 
+    ToggleFollow, ToggleLayer, 
+    EnterDiagMode, NA };
+
 // Define the number of buttons
 constexpr int NUM_BUTTONS = 8;
 

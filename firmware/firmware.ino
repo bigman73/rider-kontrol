@@ -1,5 +1,6 @@
 #include "constants.h"
 #include "vars.h"
+#include "buttonDefinition.h"
 #include <BleKeyboard.h>
 #include <avdweb_Switch.h>
 
@@ -8,7 +9,7 @@ BleKeyboard bleKeyboard(
   BLUETOOTH_DEVICE, BLUETOOTH_MANUFACTURER, 
   BLUETOOTH_BATT_LEVEL_DEFAULT);
 
-// TODO: NMove to utility module
+// TODO: Move to utility module
 /**
  * Print the initialized message to the serial port.
  */
@@ -19,7 +20,7 @@ void printInitializedMessage() {
   Serial.println(" initialized");
 }
 
-// TODO: NMove to utility module
+// TODO: Move to utility module
 /**
  * Print a message line to the serial port.
  * @param message The message to print.
@@ -128,23 +129,26 @@ void setupBluetooth() {
 }
 
 /**
-  Setup the buttons, assigned their GPIO pin and set them as input pull up resistor mode
-  A button press lowers voltage of pin to 0V, no press sets the voltage to VCC.
+  Setup the buttons, assign their GPIO pin, button kind and actions
   NOTE: GPIO_7 is not used, as it is the onboard LED
  */
 void setupButtons() {
-  // TODO: Array should be of a new class, ButtonDefinition,
-  //  that would have the Switch as a field, and also the 
-  //  action (e.g., zoom in, zoom out, etc.)
-  // TODO: Create an enumeration for all actions
-  _buttons[0] = new Switch(GPIO_0, INPUT_PULLUP);
-  _buttons[1] = new Switch(GPIO_1, INPUT_PULLUP);
-  _buttons[2] = new Switch(GPIO_2, INPUT_PULLUP);
-  _buttons[3] = new Switch(GPIO_3, INPUT_PULLUP);
-  _buttons[4] = new Switch(GPIO_4, INPUT_PULLUP);
-  _buttons[5] = new Switch(GPIO_5, INPUT_PULLUP);
-  _buttons[6] = new Switch(GPIO_6, INPUT_PULLUP);
-  _buttons[7] = new Switch(GPIO_8, INPUT_PULLUP);
+  // B1 - See image assets/RiderKontrolButtons.png
+  _buttons[0] = new ButtonDefinition(GPIO_0, ButtonKind::Continous, RiderKontrolAction::ZoomIn);
+  // B2
+  _buttons[1] = new ButtonDefinition(GPIO_1, ButtonKind::Continous, RiderKontrolAction::ZoomOut);
+  // B3
+  _buttons[2] = new ButtonDefinition(GPIO_2, ButtonKind::ShortLong, RiderKontrolAction::PlayPauseMedia, RiderKontrolAction::MuteMedia);
+  // B4
+  _buttons[3] = new ButtonDefinition(GPIO_3, ButtonKind::ShortLong, RiderKontrolAction::ToggleFollow, RiderKontrolAction::EnterDiagMode);
+  // B5
+  _buttons[4] = new ButtonDefinition(GPIO_4, ButtonKind::Continous, RiderKontrolAction::PanUp);
+  // B6
+  _buttons[5] = new ButtonDefinition(GPIO_5, ButtonKind::Continous, RiderKontrolAction::PanRight);
+  // B7
+  _buttons[6] = new ButtonDefinition(GPIO_6, ButtonKind::Continous, RiderKontrolAction::PanDown);
+  // B8
+  _buttons[7] = new ButtonDefinition(GPIO_8, ButtonKind::Continous, RiderKontrolAction::PanLeft);
 }
 
 /**
@@ -329,6 +333,12 @@ void handleProgramStateLogic() {
 void handleButtonPress(int buttonIndex) {
   Serial.printf("=> handleButtonPress: %u\n", buttonIndex);
   _isButtonPressed = true;
+
+  ButtonDefinition* buttonDef = _buttons[buttonIndex];
+  if (buttonDef != nullptr) {
+    // TODO: Handle button kind and actions
+    Serial.printf("Button kind: %u\n", buttonDef->kind);
+  }
 }
 
 /**
@@ -336,18 +346,25 @@ void handleButtonPress(int buttonIndex) {
  */
 void handleButtons() {
   // Poll all button state
-  for (int buttonIndex=0; buttonIndex < NUM_BUTTONS; buttonIndex++) {
-    _buttons[buttonIndex]->poll();
+  for (int buttonIndex = 0; buttonIndex < NUM_BUTTONS; buttonIndex++) {
+    ButtonDefinition* buttonDef = _buttons[buttonIndex];
+    if (buttonDef != nullptr) {
+      buttonDef->button.poll();
+    }
   }
 
   int now = millis();
 
-  for (int buttonIndex=0; buttonIndex < NUM_BUTTONS; buttonIndex++) {
-    Switch* button = _buttons[buttonIndex];
+  for (int buttonIndex = 0; buttonIndex < NUM_BUTTONS; buttonIndex++) {
+    ButtonDefinition* buttonDef = _buttons[buttonIndex];
+    if (buttonDef == nullptr) {
+      continue;
+    }
+    Switch* button = &buttonDef->button;
 
-    // Note: `pushed` is a one time transition on the trigger from unpushed to pushed, 
+    // Note: `pushed` is a one time transition on the trigger from unpushed to pushed,
     //  unlike `on` which is a current state of button
-    if (button->pushed()) { 
+    if (button->pushed()) {
       Serial.printf("Button %u pushed\n", buttonIndex);
       // TODO: Constant for RGB colors, move RGB logic to interrupt handler, button press should override program state
       // TODO: Introduce LED state of button push?
@@ -357,9 +374,9 @@ void handleButtons() {
       _firstButtonPush = true;
       handleButtonPress(buttonIndex);
       return;
-    } else if (button->on() && 
-        _isButtonPressed && 
-        (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL1_MSEC)) {
+    } else if (button->on() &&
+               _isButtonPressed &&
+               (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL1_MSEC)) {
       // The button long press, interval 1
       _lastButtonOnCheckTime = now;
       _firstButtonPush = false;
@@ -367,9 +384,9 @@ void handleButtons() {
       Serial.printf("Button %u still pushed - 1st time\n", buttonIndex);
       handleButtonPress(buttonIndex);
       return;
-    } else if (button->on() && 
-        !_isButtonPressed && 
-        (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL2_MSEC)) {
+    } else if (button->on() &&
+               !_isButtonPressed &&
+               (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL2_MSEC)) {
       // The button long press, interval 2
       _lastButtonOnCheckTime = now;
 
