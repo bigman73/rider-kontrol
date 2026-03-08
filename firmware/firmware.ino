@@ -138,7 +138,7 @@ void setupButtons() {
   // B2
   _buttons[1] = new ButtonDefinition(GPIO_1, ButtonKind::Continous, RiderKontrolAction::ZoomOut);
   // B3
-  _buttons[2] = new ButtonDefinition(GPIO_2, ButtonKind::ShortLong, RiderKontrolAction::PlayPauseMedia, RiderKontrolAction::MuteMedia);
+  _buttons[2] = new ButtonDefinition(GPIO_2, ButtonKind::ShortLong, RiderKontrolAction::PlayPauseMedia, RiderKontrolAction::NextTrackMedia);
   // B4
   _buttons[3] = new ButtonDefinition(GPIO_3, ButtonKind::ShortLong, RiderKontrolAction::ToggleFollow, RiderKontrolAction::EnterDiagMode);
   // B5

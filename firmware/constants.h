@@ -86,7 +86,7 @@ enum class ButtonKind { Continous, ShortLong };
 // Actions that can be performed
 enum class RiderKontrolAction { 
     ZoomIn, ZoomOut, 
-    PlayPauseMedia, MuteMedia, 
+    PlayPauseMedia, NextTrackMedia, MuteMedia, 
     PanUp, PanRight, PanDown, PanLeft, 
     ToggleFollow, ToggleLayer, 
     EnterDiagMode, NA };
