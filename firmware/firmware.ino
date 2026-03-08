@@ -8,20 +8,6 @@ BleKeyboard bleKeyboard(
   BLUETOOTH_DEVICE, BLUETOOTH_MANUFACTURER, 
   BLUETOOTH_BATT_LEVEL_DEFAULT);
 
-// Declare an array of Switch objects, one for each button, and initialize them
-// All buttons are using internal pull up resistor. A button press lowers voltage of pin to 0V
-// NOTE: GPIO_7 is not used, as it is the onboard LED
-Switch buttons[NUM_BUTTONS] = {
-  Switch(GPIO_0, INPUT_PULLUP),
-  Switch(GPIO_1, INPUT_PULLUP),
-  Switch(GPIO_2, INPUT_PULLUP),
-  Switch(GPIO_3, INPUT_PULLUP),
-  Switch(GPIO_4, INPUT_PULLUP),
-  Switch(GPIO_5, INPUT_PULLUP),
-  Switch(GPIO_6, INPUT_PULLUP),
-  Switch(GPIO_8, INPUT_PULLUP)
-};
-
 // TODO: NMove to utility module
 /**
  * Print the initialized message to the serial port.
@@ -142,6 +128,26 @@ void setupBluetooth() {
 }
 
 /**
+  Setup the buttons, assigned their GPIO pin and set them as input pull up resistor mode
+  A button press lowers voltage of pin to 0V, no press sets the voltage to VCC.
+  NOTE: GPIO_7 is not used, as it is the onboard LED
+ */
+void setupButtons() {
+  // TODO: Array should be of a new class, ButtonDefinition,
+  //  that would have the Switch as a field, and also the 
+  //  action (e.g., zoom in, zoom out, etc.)
+  // TODO: Create an enumeration for all actions
+  _buttons[0] = new Switch(GPIO_0, INPUT_PULLUP);
+  _buttons[1] = new Switch(GPIO_1, INPUT_PULLUP);
+  _buttons[2] = new Switch(GPIO_2, INPUT_PULLUP);
+  _buttons[3] = new Switch(GPIO_3, INPUT_PULLUP);
+  _buttons[4] = new Switch(GPIO_4, INPUT_PULLUP);
+  _buttons[5] = new Switch(GPIO_5, INPUT_PULLUP);
+  _buttons[6] = new Switch(GPIO_6, INPUT_PULLUP);
+  _buttons[7] = new Switch(GPIO_8, INPUT_PULLUP);
+}
+
+/**
  * The setup function runs once when you press reset or power the board.
  */
  void setup() {
@@ -156,6 +162,8 @@ void setupBluetooth() {
 
   Serial.begin(SERIAL_BAUD_RATE);
   delay(SERIAL_TIMEOUT_MSEC);  // Wait for serial port to connect and initialize
+
+  setupButtons();
 
   setupBluetooth();
 
@@ -329,17 +337,17 @@ void handleButtonPress(int buttonIndex) {
 void handleButtons() {
   // Poll all button state
   for (int buttonIndex=0; buttonIndex < NUM_BUTTONS; buttonIndex++) {
-    buttons[buttonIndex].poll();
+    _buttons[buttonIndex]->poll();
   }
 
   int now = millis();
 
   for (int buttonIndex=0; buttonIndex < NUM_BUTTONS; buttonIndex++) {
-    Switch button = buttons[buttonIndex];
+    Switch* button = _buttons[buttonIndex];
 
     // Note: `pushed` is a one time transition on the trigger from unpushed to pushed, 
     //  unlike `on` which is a current state of button
-    if (button.pushed()) { 
+    if (button->pushed()) { 
       Serial.printf("Button %u pushed\n", buttonIndex);
       // TODO: Constant for RGB colors, move RGB logic to interrupt handler, button press should override program state
       // TODO: Introduce LED state of button push?
@@ -349,7 +357,7 @@ void handleButtons() {
       _firstButtonPush = true;
       handleButtonPress(buttonIndex);
       return;
-    } else if (button.on() && 
+    } else if (button->on() && 
         _isButtonPressed && 
         (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL1_MSEC)) {
       // The button long press, interval 1
@@ -359,7 +367,7 @@ void handleButtons() {
       Serial.printf("Button %u still pushed - 1st time\n", buttonIndex);
       handleButtonPress(buttonIndex);
       return;
-    } else if (button.on() && 
+    } else if (button->on() && 
         !_isButtonPressed && 
         (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL2_MSEC)) {
       // The button long press, interval 2
@@ -370,7 +378,7 @@ void handleButtons() {
       return;
     }
 
-    if (button.released()) {
+    if (button->released()) {
       Serial.printf("Button %u released\n", buttonIndex);
 
       _isButtonPressed = false;

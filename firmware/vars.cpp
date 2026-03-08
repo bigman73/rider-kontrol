@@ -12,3 +12,4 @@ bool _firstTimePan = true;
 unsigned long _lastButtonOnCheckTime = 0;
 bool _firstButtonPush = false;
 bool _isButtonPressed = false;
+Switch* _buttons[NUM_BUTTONS];
