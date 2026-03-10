@@ -332,7 +332,6 @@ void handleProgramStateLogic() {
  */
 void handleButtonPress(int buttonIndex) {
   Serial.printf("=> handleButtonPress: %u\n", buttonIndex);
-  _isButtonPressed = true;
 
   ButtonDefinition* buttonDef = _buttons[buttonIndex];
   if (buttonDef != nullptr) {
@@ -415,10 +414,11 @@ void handleButtons() {
       // TODO: Keep lastOnCheck and _firstButtonPush per button
       _lastButtonOnCheckTime = now;
       _firstButtonPush = true;
+      _isButtonPressed = true;
       handleButtonPress(buttonIndex);
       return;
     } else if (button->on() &&
-               _isButtonPressed &&
+                _firstButtonPush &&
                (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL1_MSEC)) {
       // The button long press, interval 1
       _lastButtonOnCheckTime = now;
@@ -428,7 +428,7 @@ void handleButtons() {
       handleButtonPress(buttonIndex);
       return;
     } else if (button->on() &&
-               !_isButtonPressed &&
+               !_firstButtonPush &&
                (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL2_MSEC)) {
       // The button long press, interval 2
       _lastButtonOnCheckTime = now;
