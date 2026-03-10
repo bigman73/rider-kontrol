@@ -134,21 +134,21 @@ void setupBluetooth() {
  */
 void setupButtons() {
   // B1 - See image assets/RiderKontrolButtons.png
-  _buttons[0] = new ButtonDefinition(GPIO_0, ButtonKind::Continous, RiderKontrolAction::ZoomIn);
+  _buttons[0] = new ButtonDefinition(GPIO_0, "B1", ButtonKind::Continous, RiderKontrolAction::ZoomIn);
   // B2
-  _buttons[1] = new ButtonDefinition(GPIO_1, ButtonKind::Continous, RiderKontrolAction::ZoomOut);
+  _buttons[1] = new ButtonDefinition(GPIO_1, "B2", ButtonKind::Continous, RiderKontrolAction::ZoomOut);
   // B3
-  _buttons[2] = new ButtonDefinition(GPIO_2, ButtonKind::ShortLong, RiderKontrolAction::PlayPauseMedia, RiderKontrolAction::NextTrackMedia);
+  _buttons[2] = new ButtonDefinition(GPIO_2, "B3", ButtonKind::ShortLong, RiderKontrolAction::PlayPauseMedia, RiderKontrolAction::NextTrackMedia);
   // B4
-  _buttons[3] = new ButtonDefinition(GPIO_3, ButtonKind::ShortLong, RiderKontrolAction::ToggleFollow, RiderKontrolAction::EnterDiagMode);
+  _buttons[3] = new ButtonDefinition(GPIO_3, "B4", ButtonKind::ShortLong, RiderKontrolAction::ToggleFollow, RiderKontrolAction::EnterDiagMode);
   // B5
-  _buttons[4] = new ButtonDefinition(GPIO_4, ButtonKind::Continous, RiderKontrolAction::PanUp);
+  _buttons[4] = new ButtonDefinition(GPIO_4, "B5", ButtonKind::Continous, RiderKontrolAction::PanUp);
   // B6
-  _buttons[5] = new ButtonDefinition(GPIO_5, ButtonKind::Continous, RiderKontrolAction::PanRight);
+  _buttons[5] = new ButtonDefinition(GPIO_5, "B6", ButtonKind::Continous, RiderKontrolAction::PanRight);
   // B7
-  _buttons[6] = new ButtonDefinition(GPIO_6, ButtonKind::Continous, RiderKontrolAction::PanDown);
+  _buttons[6] = new ButtonDefinition(GPIO_6, "B7", ButtonKind::Continous, RiderKontrolAction::PanDown);
   // B8
-  _buttons[7] = new ButtonDefinition(GPIO_8, ButtonKind::Continous, RiderKontrolAction::PanLeft);
+  _buttons[7] = new ButtonDefinition(GPIO_8, "B8", ButtonKind::Continous, RiderKontrolAction::PanLeft);
 }
 
 /**
@@ -330,57 +330,108 @@ void handleProgramStateLogic() {
 /**
   Single button on press event handler
  */
-void handleButtonPress(int buttonIndex) {
-  Serial.printf("=> handleButtonPress: %u\n", buttonIndex);
+void handleButtonPress(ButtonDefinition* buttonDef) {
+  Serial.printf("=> handleButtonPress: %s,", buttonDef->name);
+  Serial.printf("kind: %u, action1: %u, action2: %u\n", 
+    buttonDef->kind, 
+    buttonDef->action1, 
+    buttonDef->action2);
 
-  ButtonDefinition* buttonDef = _buttons[buttonIndex];
-  if (buttonDef != nullptr) {
-    // TODO: Handle button kind and actions
-    Serial.printf("Button kind: %u, action1: %u, action2: %u\n", 
-      buttonDef->kind, 
-      buttonDef->action1, buttonDef->action2);
-
-    if (buttonDef->action1 == RiderKontrolAction::PanUp) {
-      printDebugMessage("Action: Pan Up");
-      if (_firstTimePan) {
-        _firstTimePan = false;
-        bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
-        printDebugMessage("First time pan");
-      }
-
+  if (buttonDef->action1 == RiderKontrolAction::PanUp) {
+    printDebugMessage("Action: Pan Up");
+    if (_firstTimePan) {
+      _firstTimePan = false;
       bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
-    } else if (buttonDef->action1 == RiderKontrolAction::PanRight) {
-      printDebugMessage("Action: Pan Right");
-      if (_firstTimePan) {
-        _firstTimePan = false;
-        bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
-        printDebugMessage("First time pan");
-      }
+    }
 
+    bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
+  } else if (buttonDef->action1 == RiderKontrolAction::PanRight) {
+    printDebugMessage("Action: Pan Right");
+    if (_firstTimePan) {
+      _firstTimePan = false;
       bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
-    } else if (buttonDef->action1 == RiderKontrolAction::PanDown) {
-      printDebugMessage("Action: Pan Down");
-      if (_firstTimePan) {
-        _firstTimePan = false;
-        bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
-        printDebugMessage("First time pan");
-      }
+    }
 
+    bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
+  } else if (buttonDef->action1 == RiderKontrolAction::PanDown) {
+    printDebugMessage("Action: Pan Down");
+    if (_firstTimePan) {
+      _firstTimePan = false;
       bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
-    } else if (buttonDef->action1 == RiderKontrolAction::PanLeft) {
-      printDebugMessage("Action: Pan Left");
-      if (_firstTimePan) {
-        _firstTimePan = false;
-        bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
-        printDebugMessage("First time pan");
-      }
+    }
 
+    bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
+  } else if (buttonDef->action1 == RiderKontrolAction::PanLeft) {
+    printDebugMessage("Action: Pan Left");
+    if (_firstTimePan) {
+      _firstTimePan = false;
       bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
     }
 
-    // TOOD: Handle other actions, continous mode
+    bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
+  } else if (buttonDef->action1 == RiderKontrolAction::ToggleFollow) {
+    printDebugMessage("Action: Pan Left");
+    if (_firstTimePan) {
+      _firstTimePan = false;
+      bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
+      printDebugMessage("First time pan");
+    }
 
+    bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
   }
+
+    // TOOD: Handle other actions
+}
+
+
+void handleContinousButton(ButtonDefinition* buttonDef) {
+  int now = millis();
+  Switch* button = &buttonDef->button;
+
+// Note: `pushed` is a one time transition on the trigger from unpushed to pushed,
+  //  unlike `on` which is a current state of button
+  if (button->pushed()) {
+    // TODO: Constant for RGB colors, move RGB logic to interrupt handler, button press should override program state
+    // TODO: Introduce LED state of button push?
+    //neopixelWrite(ONBOARD_LED_PIN, 70,70,0);
+    // TODO: Keep lastOnCheck and _firstButtonPush per button
+    _lastButtonOnCheckTime = now;
+    _firstButtonPush = true;
+    _isButtonPressed = true;
+    handleButtonPress(buttonDef);
+    return;
+  } else if (button->on() &&
+              _firstButtonPush &&
+              (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL1_MSEC)) {
+    // The button long press, interval 1
+    _lastButtonOnCheckTime = now;
+    _firstButtonPush = false;
+
+    handleButtonPress(buttonDef);
+    return;
+  } else if (button->on() &&
+              !_firstButtonPush &&
+              (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL2_MSEC)) {
+    // The button long press, interval 2
+    _lastButtonOnCheckTime = now;
+
+    handleButtonPress(buttonDef);
+    return;
+  }
+
+  if (button->released()) {
+    Serial.printf("Continous Button %s released\n", buttonDef->name);
+
+    _isButtonPressed = false;
+    _firstButtonPush = false;
+    return;
+  }
+}
+
+void handleShortLongButton(ButtonDefinition* buttonDef) {
+  // TODO: Impl
+  // Switch* button = &buttonDef->button;
+
 }
 
 /**
@@ -395,55 +446,16 @@ void handleButtons() {
     }
   }
 
-  int now = millis();
-
   for (int buttonIndex = 0; buttonIndex < NUM_BUTTONS; buttonIndex++) {
     ButtonDefinition* buttonDef = _buttons[buttonIndex];
     if (buttonDef == nullptr) {
       continue;
     }
-    Switch* button = &buttonDef->button;
 
-    // Note: `pushed` is a one time transition on the trigger from unpushed to pushed,
-    //  unlike `on` which is a current state of button
-    if (button->pushed()) {
-      Serial.printf("Button %u pushed\n", buttonIndex);
-      // TODO: Constant for RGB colors, move RGB logic to interrupt handler, button press should override program state
-      // TODO: Introduce LED state of button push?
-      //neopixelWrite(ONBOARD_LED_PIN, 70,70,0);
-      // TODO: Keep lastOnCheck and _firstButtonPush per button
-      _lastButtonOnCheckTime = now;
-      _firstButtonPush = true;
-      _isButtonPressed = true;
-      handleButtonPress(buttonIndex);
-      return;
-    } else if (button->on() &&
-                _firstButtonPush &&
-               (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL1_MSEC)) {
-      // The button long press, interval 1
-      _lastButtonOnCheckTime = now;
-      _firstButtonPush = false;
-
-      Serial.printf("Button %u still pushed - 1st time\n", buttonIndex);
-      handleButtonPress(buttonIndex);
-      return;
-    } else if (button->on() &&
-               !_firstButtonPush &&
-               (now - _lastButtonOnCheckTime > REPEAT_PUSH_INTERVAL2_MSEC)) {
-      // The button long press, interval 2
-      _lastButtonOnCheckTime = now;
-
-      Serial.printf("Button %u still pushed\n", buttonIndex);
-      handleButtonPress(buttonIndex);
-      return;
-    }
-
-    if (button->released()) {
-      Serial.printf("Button %u released\n", buttonIndex);
-
-      _isButtonPressed = false;
-      _firstButtonPush = false;
-      return;
+    if (buttonDef->kind == ButtonKind::Continous) {
+      handleContinousButton(buttonDef);
+    } else {
+      handleShortLongButton(buttonDef);
     }
   }
 }
