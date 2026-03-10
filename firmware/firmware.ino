@@ -337,7 +337,50 @@ void handleButtonPress(int buttonIndex) {
   ButtonDefinition* buttonDef = _buttons[buttonIndex];
   if (buttonDef != nullptr) {
     // TODO: Handle button kind and actions
-    Serial.printf("Button kind: %u\n", buttonDef->kind);
+    Serial.printf("Button kind: %u, action1: %u, action2: %u\n", 
+      buttonDef->kind, 
+      buttonDef->action1, buttonDef->action2);
+
+    if (buttonDef->action1 == RiderKontrolAction::PanUp) {
+      printDebugMessage("Action: Pan Up");
+      if (_firstTimePan) {
+        _firstTimePan = false;
+        bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
+        printDebugMessage("First time pan");
+      }
+
+      bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
+    } else if (buttonDef->action1 == RiderKontrolAction::PanRight) {
+      printDebugMessage("Action: Pan Right");
+      if (_firstTimePan) {
+        _firstTimePan = false;
+        bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
+        printDebugMessage("First time pan");
+      }
+
+      bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
+    } else if (buttonDef->action1 == RiderKontrolAction::PanDown) {
+      printDebugMessage("Action: Pan Down");
+      if (_firstTimePan) {
+        _firstTimePan = false;
+        bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
+        printDebugMessage("First time pan");
+      }
+
+      bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
+    } else if (buttonDef->action1 == RiderKontrolAction::PanLeft) {
+      printDebugMessage("Action: Pan Left");
+      if (_firstTimePan) {
+        _firstTimePan = false;
+        bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
+        printDebugMessage("First time pan");
+      }
+
+      bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
+    }
+
+    // TOOD: Handle other actions, continous mode
+
   }
 }
 

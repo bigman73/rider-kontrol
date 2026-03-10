@@ -51,7 +51,7 @@ constexpr uint8_t LED_BUTTON_PRESS_GREEN = 70;
 constexpr uint8_t LED_BUTTON_PRESS_BLUE = 0;
 
 // Firmware metadata
-constexpr const char* FIRMWARE_VERSION = "0.0.2";
+constexpr const char* FIRMWARE_VERSION = "0.0.3";
 constexpr const char* FIRMWARE_NAME = "Rider Kontrol";
 
 constexpr const char* BLUETOOTH_DEVICE = "Rider Kontrol";
