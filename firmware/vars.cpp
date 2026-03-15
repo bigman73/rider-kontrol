@@ -11,6 +11,7 @@ bool _firstTimePan = true;
 bool _externalLedHeartbeat = false;
 
 unsigned long _lastButtonOnCheckTime = 0;
+unsigned long _lastButtonPressed = 0;
 bool _firstButtonPush = false;
 bool _isButtonPressed = false;
 ButtonDefinition* _buttons[NUM_BUTTONS] = { nullptr };

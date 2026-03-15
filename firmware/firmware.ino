@@ -96,6 +96,9 @@ void controlOnboardLED() {
   }
 }
 
+/**
+  Blink heartbeat of external LED
+ */
 void heartbeatExternalLED() {
   unsigned long now = millis();
 
@@ -157,21 +160,48 @@ void setupBluetooth() {
  */
 void setupButtons() {
   // B1 - See image assets/RiderKontrolButtons.png
-  _buttons[0] = new ButtonDefinition(GPIO_0, "B1", ButtonKind::Continous, RiderKontrolAction::ZoomIn);
+  _buttons[0] = new ButtonDefinition(GPIO_0, "B1", ButtonKind::Continous, 
+    RiderKontrolAction::ZoomIn, 
+    DMD2_KEYCODE_ZOOM_IN
+  );
   // B2
-  _buttons[1] = new ButtonDefinition(GPIO_1, "B2", ButtonKind::Continous, RiderKontrolAction::ZoomOut);
+  _buttons[1] = new ButtonDefinition(GPIO_1, "B2", ButtonKind::Continous, 
+    RiderKontrolAction::ZoomOut, 
+    DMD2_KEYCODE_ZOOM_OUT
+  );
   // B3
-  _buttons[2] = new ButtonDefinition(GPIO_2, "B3", ButtonKind::ShortLong, RiderKontrolAction::PlayPauseMedia, RiderKontrolAction::NextTrackMedia);
+  _buttons[2] = new ButtonDefinition(GPIO_2, "B3", ButtonKind::ShortLong, 
+    RiderKontrolAction::PlayPauseMedia, 
+    DMD2_KEYCODE_PLAY_PAUSE,
+    RiderKontrolAction::NextTrackMedia,
+    DMD2_KEYCODE_NEXT_TRACK
+  );
   // B4
-  _buttons[3] = new ButtonDefinition(GPIO_3, "B4", ButtonKind::ShortLong, RiderKontrolAction::ToggleFollow, RiderKontrolAction::EnterDiagMode);
+  _buttons[3] = new ButtonDefinition(GPIO_3, "B4", ButtonKind::ShortLong, 
+    RiderKontrolAction::ToggleFollow, 
+    DMD2_KEYCODE_CENTER,
+    RiderKontrolAction::EnterDiagMode
+  );
   // B5
-  _buttons[4] = new ButtonDefinition(GPIO_4, "B5", ButtonKind::Continous, RiderKontrolAction::PanUp);
+  _buttons[4] = new ButtonDefinition(GPIO_4, "B5", ButtonKind::Continous, 
+    RiderKontrolAction::PanUp,
+    DMD2_KEYCODE_UP_ARROW
+  );
   // B6
-  _buttons[5] = new ButtonDefinition(GPIO_5, "B6", ButtonKind::Continous, RiderKontrolAction::PanRight);
+  _buttons[5] = new ButtonDefinition(GPIO_5, "B6", ButtonKind::Continous, 
+    RiderKontrolAction::PanRight,
+    DMD2_KEYCODE_RIGHT_ARROW
+  );
   // B7
-  _buttons[6] = new ButtonDefinition(GPIO_6, "B7", ButtonKind::Continous, RiderKontrolAction::PanDown);
+  _buttons[6] = new ButtonDefinition(GPIO_6, "B7", ButtonKind::Continous, 
+    RiderKontrolAction::PanDown,
+    DMD2_KEYCODE_DOWN_ARROW
+  );
   // B8
-  _buttons[7] = new ButtonDefinition(GPIO_8, "B8", ButtonKind::Continous, RiderKontrolAction::PanLeft);
+  _buttons[7] = new ButtonDefinition(GPIO_8, "B8", ButtonKind::Continous, 
+    RiderKontrolAction::PanLeft,
+    DMD2_KEYCODE_LEFT_ARROW
+  );
 }
 
 /**
@@ -355,6 +385,29 @@ void handleProgramStateLogic() {
 }
 
 /**
+  Sends a Bluetooth key press
+
+  @param keyCode Key code to send over Bluetooth
+ */
+void sendBluetoothKey(uint8_t keyCode) {
+  bleKeyboard.write(keyCode);
+}
+
+/**
+  Sends a Bluetooth key press that is related to map panning
+
+  @param keyCode Key code to send over Bluetooth
+ */
+void sendPanningBluetoothKey(uint8_t keyCode) {
+  if (_firstTimePan) {
+    _firstTimePan = false;
+    sendBluetoothKey(keyCode);
+  }
+
+  sendBluetoothKey(keyCode);
+}
+
+/**
   Single button on press event handler
  */
 void handleButtonPress(ButtonDefinition* buttonDef) {
@@ -366,50 +419,15 @@ void handleButtonPress(ButtonDefinition* buttonDef) {
 
   _lastButtonPressed = millis();
 
-  if (buttonDef->action1 == RiderKontrolAction::PanUp) {
-    printDebugMessage("Action: Pan Up");
-    if (_firstTimePan) {
-      _firstTimePan = false;
-      bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
-    }
-
-    bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
-  } else if (buttonDef->action1 == RiderKontrolAction::PanRight) {
-    printDebugMessage("Action: Pan Right");
-    if (_firstTimePan) {
-      _firstTimePan = false;
-      bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
-    }
-
-    bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
-  } else if (buttonDef->action1 == RiderKontrolAction::PanDown) {
-    printDebugMessage("Action: Pan Down");
-    if (_firstTimePan) {
-      _firstTimePan = false;
-      bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
-    }
-
-    bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
-  } else if (buttonDef->action1 == RiderKontrolAction::PanLeft) {
-    printDebugMessage("Action: Pan Left");
-    if (_firstTimePan) {
-      _firstTimePan = false;
-      bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
-    }
-
-    bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
-  } else if (buttonDef->action1 == RiderKontrolAction::ToggleFollow) {
-    printDebugMessage("Action: Pan Left");
-    if (_firstTimePan) {
-      _firstTimePan = false;
-      bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
-      printDebugMessage("First time pan");
-    }
-
-    bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
-  }
-
-    // TOOD: Handle other actions
+  if (buttonDef->action1 == RiderKontrolAction::PanUp ||
+      buttonDef->action1 == RiderKontrolAction::PanRight ||
+      buttonDef->action1 == RiderKontrolAction::PanDown ||
+      buttonDef->action1 == RiderKontrolAction::PanLeft ||
+      buttonDef->action1 == RiderKontrolAction::ZoomIn ||
+      buttonDef->action1 == RiderKontrolAction::ZoomOut ||
+      buttonDef->action1 == RiderKontrolAction::ToggleFollow) {
+        sendPanningBluetoothKey(buttonDef->keyCode1);
+      }
 }
 
 

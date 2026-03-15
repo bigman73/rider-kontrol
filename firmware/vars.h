@@ -18,6 +18,7 @@ extern bool _externalLedHeartbeat;
 extern unsigned long _lastButtonOnCheckTime;
 extern bool _firstButtonPush;
 extern bool _isButtonPressed;
+extern unsigned long _lastButtonPressed;
 
 // Declare an array of pointers to ButtonDefinition objects, one for each button
 extern ButtonDefinition* _buttons[NUM_BUTTONS];

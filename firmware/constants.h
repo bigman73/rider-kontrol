@@ -80,9 +80,9 @@ constexpr uint8_t DMD2_KEYCODE_CENTER = '0';
 constexpr uint8_t DMD2_KEYCODE_ONLINE_LAYER = '~';
 constexpr uint8_t DMD2_KEYCODE_ZOOM_IN = '+';
 constexpr uint8_t DMD2_KEYCODE_ZOOM_OUT = '-';
-constexpr const uint8_t* DMD2_KEYCODE_PLAY_PAUSE = KEY_MEDIA_PLAY_PAUSE;
-constexpr const uint8_t* DMD2_KEYCODE_NEXT_TRACK = KEY_MEDIA_NEXT_TRACK;
-constexpr const uint8_t* DMD2_KEYCODE_MUTE = KEY_MEDIA_MUTE;
+constexpr uint8_t DMD2_KEYCODE_PLAY_PAUSE = *KEY_MEDIA_PLAY_PAUSE;
+constexpr uint8_t DMD2_KEYCODE_NEXT_TRACK = *KEY_MEDIA_NEXT_TRACK;
+constexpr uint8_t DMD2_KEYCODE_MUTE = *KEY_MEDIA_MUTE;
 
 // -- Button constants
 // Kinds of buttons
