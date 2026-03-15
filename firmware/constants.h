@@ -6,6 +6,9 @@
 // Program state (shared)
 enum class ProgramState { Normal, Diag };
 
+template <typename T, size_t N>
+constexpr size_t arraySize(const T (&)[N]) { return N; }
+
 // Firmware metadata
 constexpr const char* FIRMWARE_VERSION = "0.0.4";
 constexpr const char* FIRMWARE_NAME = "Rider Kontrol";
@@ -72,17 +75,17 @@ constexpr unsigned long INITIAL_STABLILIZE_INTERVAL_MSEC = 100;
 constexpr unsigned long DIAG_MAX_TIME_MSEC = 180000;
 
 // DMD2 key codes - See README.md for more details
-constexpr uint8_t DMD2_KEYCODE_LEFT_ARROW = KEY_LEFT_ARROW;
-constexpr uint8_t DMD2_KEYCODE_RIGHT_ARROW = KEY_RIGHT_ARROW;
-constexpr uint8_t DMD2_KEYCODE_UP_ARROW = KEY_UP_ARROW;
-constexpr uint8_t DMD2_KEYCODE_DOWN_ARROW = KEY_DOWN_ARROW;
-constexpr uint8_t DMD2_KEYCODE_CENTER = '0';
-constexpr uint8_t DMD2_KEYCODE_ONLINE_LAYER = '~';
-constexpr uint8_t DMD2_KEYCODE_ZOOM_IN = '+';
-constexpr uint8_t DMD2_KEYCODE_ZOOM_OUT = '-';
-constexpr uint8_t DMD2_KEYCODE_PLAY_PAUSE = *KEY_MEDIA_PLAY_PAUSE;
-constexpr uint8_t DMD2_KEYCODE_NEXT_TRACK = *KEY_MEDIA_NEXT_TRACK;
-constexpr uint8_t DMD2_KEYCODE_MUTE = *KEY_MEDIA_MUTE;
+constexpr uint8_t DMD2_KEYCODE_LEFT_ARROW[] = { KEY_LEFT_ARROW };
+constexpr uint8_t DMD2_KEYCODE_RIGHT_ARROW[] = { KEY_RIGHT_ARROW };
+constexpr uint8_t DMD2_KEYCODE_UP_ARROW[] = { KEY_UP_ARROW };
+constexpr uint8_t DMD2_KEYCODE_DOWN_ARROW[] = { KEY_DOWN_ARROW };
+constexpr uint8_t DMD2_KEYCODE_CENTER[] = { '0' };
+constexpr uint8_t DMD2_KEYCODE_ONLINE_LAYER[] = { '~' };
+constexpr uint8_t DMD2_KEYCODE_ZOOM_IN[] = { '+' };
+constexpr uint8_t DMD2_KEYCODE_ZOOM_OUT[] = { '-' };
+constexpr uint8_t DMD2_KEYCODE_PLAY_PAUSE[] = {8, 0}; // KEY_MEDIA_PLAY_PAUSE
+constexpr uint8_t DMD2_KEYCODE_NEXT_TRACK[] = {1, 0}; // KEY_MEDIA_NEXT_TRACK
+constexpr uint8_t DMD2_KEYCODE_MUTE[] = {16, 0}; // KEY_MEDIA_MUTE
 
 // -- Button constants
 // Kinds of buttons

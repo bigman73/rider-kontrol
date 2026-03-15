@@ -9,6 +9,43 @@ BleKeyboard bleKeyboard(
   BLUETOOTH_DEVICE, BLUETOOTH_MANUFACTURER, 
   BLUETOOTH_BATT_LEVEL_DEFAULT);
 
+/**
+  Sends a Bluetooth key press
+
+  @param keyCodes Key codes to send over Bluetooth
+ */
+ void sendBluetoothKey(const uint8_t* keyCodes) {
+   if (!keyCodes) {
+     printSerialMessage("Error (sendBluetoothKey): keyCodes is null");
+   }
+
+   // Use the buffer overload
+   bleKeyboard.write(keyCodes, 1);
+ }
+
+ /**
+  Sends a Bluetooth media key press
+
+  @param mediaKey Media key codes to send over Bluetooth
+ */
+ void sendBluetoothMediaKey(const MediaKeyReport mediaKey) {
+  bleKeyboard.write(mediaKey);
+}
+
+/**
+  Sends a Bluetooth key press that is related to map panning
+  @param keyCodes Key codes to send over Bluetooth
+ */
+ void sendPanningBluetoothKey(const uint8_t* keyCodes) {
+  if (_firstTimePan) {
+    printSerialMessage("FirstTimePan");
+    _firstTimePan = false;
+    sendBluetoothKey(keyCodes);
+  }
+
+  sendBluetoothKey(keyCodes);
+}
+
 // TODO: Move to utility module
 /**
  * Print the firmware version message to the serial port.
@@ -173,13 +210,16 @@ void setupButtons() {
   _buttons[2] = new ButtonDefinition(GPIO_2, "B3", ButtonKind::ShortLong, 
     RiderKontrolAction::PlayPauseMedia, 
     DMD2_KEYCODE_PLAY_PAUSE,
+    true,
     RiderKontrolAction::NextTrackMedia,
-    DMD2_KEYCODE_NEXT_TRACK
+    DMD2_KEYCODE_NEXT_TRACK,
+    true
   );
   // B4
   _buttons[3] = new ButtonDefinition(GPIO_3, "B4", ButtonKind::ShortLong, 
     RiderKontrolAction::ToggleFollow, 
     DMD2_KEYCODE_CENTER,
+    false,
     RiderKontrolAction::EnterDiagMode
   );
   // B5
@@ -205,29 +245,6 @@ void setupButtons() {
 }
 
 /**
- * The setup function runs once when you press reset or power the board.
- */
- void setup() {
-  delay(INITIAL_STABLILIZE_INTERVAL_MSEC); // Let the chip stabilize
-
-  // initialize digital pin LED_BUILTIN as an output.
-  pinMode(ONBOARD_LED_PIN, OUTPUT);
-  // initialize digital pin EXTERNAL_LED_PIN as an output.
-  pinMode(EXTERNAL_LED_PIN, OUTPUT);
-
-  neopixelWrite(ONBOARD_LED_PIN, LED_OFF_RED, LED_OFF_GREEN, LED_OFF_BLUE);
-
-  Serial.begin(SERIAL_BAUD_RATE);
-  delay(SERIAL_TIMEOUT_MSEC);  // Wait for serial port to connect and initialize
-
-  setupButtons();
-
-  setupBluetooth();
-
-  printFirmwareVersion();
-}
-
-/**
   Process the diagnostics menu commands
 
   * @param input The serial command input.
@@ -239,95 +256,85 @@ void processDiagMenu(String input) {
     bleKeyboard.print("Hello world");
   } else if (input == COMMAND_DIAG_UP) {
     printSerialMessage("Command: Up arrow");
-    if (_firstTimePan) {
-      _firstTimePan = false;
-      bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
-      printDebugMessage("First time pan");
-    }
-
-    bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
+    sendPanningBluetoothKey(DMD2_KEYCODE_UP_ARROW);
   }
   else if (input == COMMAND_DIAG_DOWN) {
     printSerialMessage("Command: Down arrow");
-    if (_firstTimePan) {
-      _firstTimePan = false;
-      bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
-      printDebugMessage("First time pan");
-    }
-
-    bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
+    sendPanningBluetoothKey(DMD2_KEYCODE_DOWN_ARROW);
   }
   else if (input == COMMAND_DIAG_LEFT) {
     printSerialMessage("Command: Left arrow");
-    if (_firstTimePan) {
-      _firstTimePan = false;
-      bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
-      printDebugMessage("First time pan");
-    }
-
-    bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
+    sendPanningBluetoothKey(DMD2_KEYCODE_LEFT_ARROW);
   }
   else if (input == COMMAND_DIAG_RIGHT) {
     printSerialMessage("Command: Right arrow");
-    if (_firstTimePan) {
-      _firstTimePan = false;
-      bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
-      printDebugMessage("First time pan");
-    }
-
-    bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
+    sendPanningBluetoothKey(DMD2_KEYCODE_RIGHT_ARROW);
   }
   else if (input == COMMAND_DIAG_ZOOM_IN) {
     printSerialMessage("Command: Zoom In");
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
   }
   else if (input == COMMAND_DIAG_ZOOM_IN_X) {
     printSerialMessage("Command: Zoom In x5");
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
+
   }
   else if (input == COMMAND_DIAG_ZOOM_OUT) {
     printSerialMessage("Command: Zoom Out");
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
   }
   else if (input == COMMAND_DIAG_ZOOM_OUT_X) {
     printSerialMessage("Command: Zoom Out x5");
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);          
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);          
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
-    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
+    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
   }
   else if (input == COMMAND_DIAG_CENTER) {
     printSerialMessage("Command: Center (Toggle follow)");
-    bleKeyboard.write(DMD2_KEYCODE_CENTER);
+    sendBluetoothKey(DMD2_KEYCODE_CENTER);
     _firstTimePan = true;
   }
   else if (input == COMMAND_DIAG_SAT_LAYER) {
     printSerialMessage("Command: Toogle satelite layer");
-    bleKeyboard.write(DMD2_KEYCODE_ONLINE_LAYER);
+    sendBluetoothKey(DMD2_KEYCODE_ONLINE_LAYER);
   }
   else if (input == COMMAND_DIAG_PLAY_MEDIA) {
     printSerialMessage("Command: Play/Pause Media");
-    bleKeyboard.write(DMD2_KEYCODE_PLAY_PAUSE);
+    sendBluetoothMediaKey(DMD2_KEYCODE_PLAY_PAUSE);
   }
   else if (input == COMMAND_DIAG_NEXT_MEDIA) {
     printSerialMessage("Command: Next Track");
-    bleKeyboard.write(DMD2_KEYCODE_NEXT_TRACK);
+    sendBluetoothMediaKey(DMD2_KEYCODE_NEXT_TRACK);
   }
   else if (input == COMMAND_DIAG_MUTE_MEDIA) {
     printSerialMessage("Command: Mute");
-    bleKeyboard.write(DMD2_KEYCODE_MUTE);
+    sendBluetoothMediaKey(DMD2_KEYCODE_MUTE);
   }
   else if (input == COMMAND_DIAG_VERSION) {
     printFirmwareVersion();
   }
   else {
-    printFormattedSerialMessage("Unknown diagnosdtics command: %s\n", input);
+    printFormattedSerialMessage("Unknown diagnostics command: %s\n", input);
   }
+}
+
+void setDiagnosticsMode() {
+  _programState = ProgramState::Diag;
+  _lastBlinkTime = 0;
+  _diagEnterTime = millis();
+  printSerialMessage("Program State: Diagnostics Mode");
+}
+
+void setNormalMode() {
+  _programState = ProgramState::Normal;
+  _lastBlinkTime = 0;
+  printSerialMessage("Program State: Normal Mode");
 }
 
 /**
@@ -342,14 +349,9 @@ void handleSerialInput() {
 
     // TODO: Add more commands
     if (input == "diag") {
-      _programState = ProgramState::Diag;
-      _lastBlinkTime = 0;
-      _diagEnterTime = millis();
-      printSerialMessage("Program State: Diagnostics Mode");
+      setDiagnosticsMode();
     } else if (input == "normal") {
-      _programState = ProgramState::Normal;
-      _lastBlinkTime = 0;
-      printSerialMessage("Program State: Normal Mode");
+      setNormalMode();
     } else if (input == "state") {
       printFormattedSerialMessage("Current program state: %u\n", _programState);
     } else if (_programState == ProgramState::Diag) {
@@ -385,29 +387,6 @@ void handleProgramStateLogic() {
 }
 
 /**
-  Sends a Bluetooth key press
-
-  @param keyCode Key code to send over Bluetooth
- */
-void sendBluetoothKey(uint8_t keyCode) {
-  bleKeyboard.write(keyCode);
-}
-
-/**
-  Sends a Bluetooth key press that is related to map panning
-
-  @param keyCode Key code to send over Bluetooth
- */
-void sendPanningBluetoothKey(uint8_t keyCode) {
-  if (_firstTimePan) {
-    _firstTimePan = false;
-    sendBluetoothKey(keyCode);
-  }
-
-  sendBluetoothKey(keyCode);
-}
-
-/**
   Single button on press event handler
  */
 void handleButtonPress(ButtonDefinition* buttonDef) {
@@ -419,18 +398,16 @@ void handleButtonPress(ButtonDefinition* buttonDef) {
 
   _lastButtonPressed = millis();
 
-  if (buttonDef->action1 == RiderKontrolAction::PanUp ||
-      buttonDef->action1 == RiderKontrolAction::PanRight ||
-      buttonDef->action1 == RiderKontrolAction::PanDown ||
-      buttonDef->action1 == RiderKontrolAction::PanLeft ||
-      buttonDef->action1 == RiderKontrolAction::ZoomIn ||
-      buttonDef->action1 == RiderKontrolAction::ZoomOut ||
-      buttonDef->action1 == RiderKontrolAction::ToggleFollow) {
-        sendPanningBluetoothKey(buttonDef->keyCode1);
-      }
+  if (buttonDef->isCodes1Media) {
+    sendBluetoothMediaKey(buttonDef->keyCodes1);
+  } else {
+    sendPanningBluetoothKey(buttonDef->keyCodes1);
+  }
 }
 
-
+/**
+  Handles logic for continous button press/release
+ */
 void handleContinousButton(ButtonDefinition* buttonDef) {
   int now = millis();
   Switch* button = &buttonDef->button;
@@ -445,6 +422,7 @@ void handleContinousButton(ButtonDefinition* buttonDef) {
     _lastButtonOnCheckTime = now;
     _firstButtonPush = true;
     _isButtonPressed = true;
+
     handleButtonPress(buttonDef);
     return;
   } else if (button->on() &&
@@ -478,10 +456,64 @@ void handleContinousButton(ButtonDefinition* buttonDef) {
   }
 }
 
+/**
+  Handles logic for short-long button press/release
+ */
 void handleShortLongButton(ButtonDefinition* buttonDef) {
-  // TODO: Impl
-  // Switch* button = &buttonDef->button;
+  int now = millis();
+  Switch* button = &buttonDef->button;
 
+  if (button->pushed()) {
+    _lastButtonPressed = now;
+  }
+
+  // FIXME: sends sometimes multiple released true
+  if (button->released() && !button->on() && 
+      (now - _lastButtonPressed < 500)) {
+    printFormattedSerialMessage("=> handleShortLongButton SHORT: %s,", buttonDef->name);
+    printFormattedSerialMessage("kind: %u, action1: %u, action2: %u\n", 
+      buttonDef->kind, 
+      buttonDef->action1, 
+      buttonDef->action2
+    );
+      
+    _lastButtonPressed = 0;
+    if (buttonDef->isCodes1Media) {
+      sendBluetoothMediaKey(buttonDef->keyCodes1);
+    } else {
+      // Special case: ToggleFollow disables the panning mode
+      if (buttonDef->action1 == RiderKontrolAction::ToggleFollow) {
+        printSerialMessage("FirstTimePan: set to true");
+        _firstTimePan = true;
+      }
+
+      sendBluetoothKey(buttonDef->keyCodes1);
+    }
+  } else if (button->released() && !button->on()) {
+    printFormattedSerialMessage("=> handleShortLongButton LONG: %s,", buttonDef->name);
+    printFormattedSerialMessage("kind: %u, action1: %u, action2: %u\n", 
+      buttonDef->kind, 
+      buttonDef->action1, 
+      buttonDef->action2
+    );
+
+    _lastButtonPressed = 0;
+    if (buttonDef->isCodes1Media) {
+      sendBluetoothMediaKey(buttonDef->keyCodes2);
+    } else {
+      if (buttonDef->action2 == RiderKontrolAction::EnterDiagMode &&
+          _programState == ProgramState::Normal) {
+        // Special case: Enter diagnostics
+        setDiagnosticsMode();
+      } else if (buttonDef->action2 == RiderKontrolAction::EnterDiagMode &&
+        _programState == ProgramState::Diag) {
+        // Special case: Exit diagnostics
+        setNormalMode();
+      } else {
+        sendBluetoothKey(buttonDef->keyCodes2);
+      }
+    }
+  }
 }
 
 /**
@@ -523,6 +555,31 @@ void handleBLEKeyboardConnection() {
     _firstBLE = true;
     printSerialMessage("Disconnected as a BT Keyboard");
   }
+}
+
+// ===================================================================================
+
+/**
+ * The setup function runs once when you press reset or power the board.
+ */
+ void setup() {
+  delay(INITIAL_STABLILIZE_INTERVAL_MSEC); // Let the chip stabilize
+
+  // initialize digital pin LED_BUILTIN as an output.
+  pinMode(ONBOARD_LED_PIN, OUTPUT);
+  // initialize digital pin EXTERNAL_LED_PIN as an output.
+  pinMode(EXTERNAL_LED_PIN, OUTPUT);
+
+  neopixelWrite(ONBOARD_LED_PIN, LED_OFF_RED, LED_OFF_GREEN, LED_OFF_BLUE);
+
+  Serial.begin(SERIAL_BAUD_RATE);
+  delay(SERIAL_TIMEOUT_MSEC);  // Wait for serial port to connect and initialize
+
+  setupButtons();
+
+  setupBluetooth();
+
+  printFirmwareVersion();
 }
 
 /**
