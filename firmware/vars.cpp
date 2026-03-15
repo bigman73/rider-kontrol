@@ -8,6 +8,7 @@ int _loopCount = 0;
 unsigned long _lastBlinkTime = 0;
 bool _ledOn = false;
 bool _firstTimePan = true;
+bool _externalLedHeartbeat = false;
 
 unsigned long _lastButtonOnCheckTime = 0;
 bool _firstButtonPush = false;

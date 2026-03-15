@@ -13,6 +13,7 @@ extern int _loopCount;
 extern unsigned long _lastBlinkTime;
 extern bool _ledOn;
 extern bool _firstTimePan;
+extern bool _externalLedHeartbeat;
 
 extern unsigned long _lastButtonOnCheckTime;
 extern bool _firstButtonPush;

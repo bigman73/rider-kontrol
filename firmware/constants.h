@@ -6,6 +6,13 @@
 // Program state (shared)
 enum class ProgramState { Normal, Diag };
 
+// Firmware metadata
+constexpr const char* FIRMWARE_VERSION = "0.0.4";
+constexpr const char* FIRMWARE_NAME = "Rider Kontrol";
+
+constexpr const char* BLUETOOTH_DEVICE = "Rider Kontrol";
+constexpr const char* BLUETOOTH_MANUFACTURER = "bigman73";
+
 // Define the GPIO pins on the ESP32-C3 Mini board
 constexpr uint8_t GPIO_0 = 0;
 constexpr uint8_t GPIO_1 = 1;
@@ -21,10 +28,13 @@ constexpr uint8_t GPIO_10 = 10;
 // Serial configuration
 constexpr long SERIAL_BAUD_RATE = 115200;
 constexpr unsigned long SERIAL_TIMEOUT_MSEC = 250;
+constexpr bool SERIAL_DEBUG = false;
 
 // LED timing
 constexpr unsigned long LED_BLINK_INTERVAL_MSEC = 2000;
 constexpr unsigned long LED_DIAG_BLINK_INTERVAL_MSEC = 500;
+constexpr unsigned long EXT_LED_HEARTBEAT_CADENCE_MSEC = 5000;
+constexpr unsigned long EXT_LED_HEARTBEAT_DURATION_MSEC = 100;
 
 // Pin assignments
 // Note: On Lolin C3 Mini v2.1.0 the onboard LED is RGB color and uses pin 7
@@ -50,12 +60,7 @@ constexpr uint8_t LED_BUTTON_PRESS_RED = 0;
 constexpr uint8_t LED_BUTTON_PRESS_GREEN = 70;
 constexpr uint8_t LED_BUTTON_PRESS_BLUE = 0;
 
-// Firmware metadata
-constexpr const char* FIRMWARE_VERSION = "0.0.3";
-constexpr const char* FIRMWARE_NAME = "Rider Kontrol";
 
-constexpr const char* BLUETOOTH_DEVICE = "Rider Kontrol";
-constexpr const char* BLUETOOTH_MANUFACTURER = "bigman73";
 constexpr uint8_t BLUETOOTH_BATT_LEVEL_DEFAULT = 100;
 
 
@@ -97,3 +102,18 @@ constexpr int NUM_BUTTONS = 8;
 constexpr int REPEAT_PUSH_INTERVAL1_MSEC = 650;
 constexpr int REPEAT_PUSH_INTERVAL2_MSEC = 150;
 
+constexpr const char* COMMAND_DIAG_HELLO = "hello";
+constexpr const char* COMMAND_DIAG_UP = "up";
+constexpr const char* COMMAND_DIAG_DOWN = "down";
+constexpr const char* COMMAND_DIAG_RIGHT = "right";
+constexpr const char* COMMAND_DIAG_LEFT = "left";
+constexpr const char* COMMAND_DIAG_ZOOM_IN = "zin";
+constexpr const char* COMMAND_DIAG_ZOOM_OUT = "zout";
+constexpr const char* COMMAND_DIAG_ZOOM_IN_X = "zinx";
+constexpr const char* COMMAND_DIAG_ZOOM_OUT_X = "zoutx";
+constexpr const char* COMMAND_DIAG_CENTER = "ctr";
+constexpr const char* COMMAND_DIAG_SAT_LAYER = "sat";
+constexpr const char* COMMAND_DIAG_PLAY_MEDIA = "play";
+constexpr const char* COMMAND_DIAG_NEXT_MEDIA = "next";
+constexpr const char* COMMAND_DIAG_MUTE_MEDIA = "mute";
+constexpr const char* COMMAND_DIAG_VERSION = "version";

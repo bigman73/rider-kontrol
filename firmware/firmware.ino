@@ -11,13 +11,10 @@ BleKeyboard bleKeyboard(
 
 // TODO: Move to utility module
 /**
- * Print the initialized message to the serial port.
+ * Print the firmware version message to the serial port.
  */
-void printInitializedMessage() {
-  Serial.print(FIRMWARE_NAME);
-  Serial.print(" v");
-  Serial.print(FIRMWARE_VERSION);
-  Serial.println(" initialized");
+void printFirmwareVersion() {
+  printFormattedSerialMessage("--= Firmware: %s v%s =--\n", FIRMWARE_NAME, FIRMWARE_VERSION);
 }
 
 // TODO: Move to utility module
@@ -25,16 +22,30 @@ void printInitializedMessage() {
  * Print a message line to the serial port.
  * @param message The message to print.
  */
- void printSerialMessage(String message) {
+void printSerialMessage(String message) {
   Serial.println(message);  // Print the message line.
 }
+
+/**
+ * Print a formatted message line to the serial port.
+
+ * @param message The message template to print.
+ * @param args Arguments
+ */
+ template<typename... Args>
+ void printFormattedSerialMessage(const String& message, Args... args) {
+  Serial.printf(message.c_str(), args...);  // Print the message line.
+}
+
 
 /**
  * Print a debug message line to the serial port.
  * @param message The message to print.
  */
 void printDebugMessage(String message) {
-  printSerialMessage("DEBUG: " + message);
+  if (SERIAL_DEBUG) {
+    printSerialMessage("DEBUG: " + message);
+  }
 }
 
 /**
@@ -79,9 +90,6 @@ void controlOnboardLED() {
         _ledOn ? LED_DIAG_ON_GREEN : LED_DIAG_OFF_GREEN, 
         _ledOn ? LED_DIAG_ON_BLUE : LED_DIAG_OFF_BLUE);
 
-      // Set the external led state.
-      // TODO: Just for testing, should be removed later. The external LED will have its own code to handle the blink or other application modes.
-      //digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
       // Update the last blink time.
       _lastBlinkTime = now;
     }
@@ -102,11 +110,18 @@ void controlExternalLED() {
   unsigned long now = millis();
 
   if (_programState == ProgramState::Normal) {
-    // TODO: Should blink the external LED for some MSEC every MSEC (e.g., 100 msec then rest 1900 msec)
-  }
-
-  if (_programState == ProgramState::Diag) {
+    unsigned long currentTimeWindow = now % EXT_LED_HEARTBEAT_CADENCE_MSEC;
+    if (!_externalLedHeartbeat && currentTimeWindow >=0 && currentTimeWindow <= EXT_LED_HEARTBEAT_DURATION_MSEC) {
+      // Blink the external LED for some MSEC every MSEC (e.g., 100 msec then rest 4900 msec)
+      _externalLedHeartbeat = true;
+      digitalWrite(EXTERNAL_LED_PIN, HIGH);
+    } else if (_externalLedHeartbeat && currentTimeWindow > EXT_LED_HEARTBEAT_DURATION_MSEC) {
+      _externalLedHeartbeat = false;
+      digitalWrite(EXTERNAL_LED_PIN, LOW);
+    }
+  } else if (_programState == ProgramState::Diag) {
     // TODO: Should blink the external LED fast for some MSEC every MSEC (e.g., 250 msec on off )
+    digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
   }
 }
 
@@ -124,7 +139,7 @@ void controlLEDs() {
   Setup bluetooth
  */
 void setupBluetooth() {
-  Serial.println("Starting BLE Keyboard");
+  printSerialMessage("Starting BLE Keyboard");
   bleKeyboard.begin();
 }
 
@@ -171,7 +186,110 @@ void setupButtons() {
 
   setupBluetooth();
 
-  printInitializedMessage();
+  printFirmwareVersion();
+}
+
+/**
+  Process the diagnostics menu commands
+
+  * @param input The serial command input.
+ */
+void processDiagMenu(String input) {
+  if (input == COMMAND_DIAG_HELLO) {
+    printFormattedSerialMessage("Welcome to %s!\n", FIRMWARE_NAME);
+    printSerialMessage("Printing [Hello world] to BT keyboard");
+    bleKeyboard.print("Hello world");
+  } else if (input == COMMAND_DIAG_UP) {
+    printSerialMessage("Command: Up arrow");
+    if (_firstTimePan) {
+      _firstTimePan = false;
+      bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
+      printDebugMessage("First time pan");
+    }
+
+    bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
+  }
+  else if (input == COMMAND_DIAG_DOWN) {
+    printSerialMessage("Command: Down arrow");
+    if (_firstTimePan) {
+      _firstTimePan = false;
+      bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
+      printDebugMessage("First time pan");
+    }
+
+    bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
+  }
+  else if (input == COMMAND_DIAG_LEFT) {
+    printSerialMessage("Command: Left arrow");
+    if (_firstTimePan) {
+      _firstTimePan = false;
+      bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
+      printDebugMessage("First time pan");
+    }
+
+    bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
+  }
+  else if (input == COMMAND_DIAG_RIGHT) {
+    printSerialMessage("Command: Right arrow");
+    if (_firstTimePan) {
+      _firstTimePan = false;
+      bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
+      printDebugMessage("First time pan");
+    }
+
+    bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
+  }
+  else if (input == COMMAND_DIAG_ZOOM_IN) {
+    printSerialMessage("Command: Zoom In");
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+  }
+  else if (input == COMMAND_DIAG_ZOOM_IN_X) {
+    printSerialMessage("Command: Zoom In x5");
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
+  }
+  else if (input == COMMAND_DIAG_ZOOM_OUT) {
+    printSerialMessage("Command: Zoom Out");
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
+  }
+  else if (input == COMMAND_DIAG_ZOOM_OUT_X) {
+    printSerialMessage("Command: Zoom Out x5");
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);          
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);          
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
+    bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
+  }
+  else if (input == COMMAND_DIAG_CENTER) {
+    printSerialMessage("Command: Center (Toggle follow)");
+    bleKeyboard.write(DMD2_KEYCODE_CENTER);
+    _firstTimePan = true;
+  }
+  else if (input == COMMAND_DIAG_SAT_LAYER) {
+    printSerialMessage("Command: Toogle satelite layer");
+    bleKeyboard.write(DMD2_KEYCODE_ONLINE_LAYER);
+  }
+  else if (input == COMMAND_DIAG_PLAY_MEDIA) {
+    printSerialMessage("Command: Play/Pause Media");
+    bleKeyboard.write(DMD2_KEYCODE_PLAY_PAUSE);
+  }
+  else if (input == COMMAND_DIAG_NEXT_MEDIA) {
+    printSerialMessage("Command: Next Track");
+    bleKeyboard.write(DMD2_KEYCODE_NEXT_TRACK);
+  }
+  else if (input == COMMAND_DIAG_MUTE_MEDIA) {
+    printSerialMessage("Command: Mute");
+    bleKeyboard.write(DMD2_KEYCODE_MUTE);
+  }
+  else if (input == COMMAND_DIAG_VERSION) {
+    printFirmwareVersion();
+  }
+  else {
+    printFormattedSerialMessage("Unknown diagnosdtics command: %s\n", input);
+  }
 }
 
 /**
@@ -189,116 +307,17 @@ void handleSerialInput() {
       _programState = ProgramState::Diag;
       _lastBlinkTime = 0;
       _diagEnterTime = millis();
-      Serial.printf("Timestamp of entry: %u\n", _diagEnterTime);
-      printDebugMessage("Program State: Diagnostics Mode");
+      printSerialMessage("Program State: Diagnostics Mode");
     } else if (input == "normal") {
       _programState = ProgramState::Normal;
       _lastBlinkTime = 0;
-      printDebugMessage("Program State: Normal Mode");
+      printSerialMessage("Program State: Normal Mode");
     } else if (input == "state") {
-      Serial.printf("Current program state: %u\n", _programState);
+      printFormattedSerialMessage("Current program state: %u\n", _programState);
+    } else if (_programState == ProgramState::Diag) {
+      processDiagMenu(input);
     } else {
-      if (_programState == ProgramState::Diag) {
-        if (input == "hello") {
-          printDebugMessage("Command: Hello World BT test");
-          bleKeyboard.print("Hello world");
-        } else if (input == "up") {
-          printDebugMessage("Command: Up arrow");
-          if (_firstTimePan) {
-            _firstTimePan = false;
-            bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
-            printDebugMessage("First time pan");
-          }
-
-          bleKeyboard.write(DMD2_KEYCODE_UP_ARROW);
-        }
-        else if (input == "down") {
-          printDebugMessage("Command: Down arrow");
-          if (_firstTimePan) {
-            _firstTimePan = false;
-            bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
-            printDebugMessage("First time pan");
-          }
-
-          bleKeyboard.write(DMD2_KEYCODE_DOWN_ARROW);
-        }
-        else if (input == "left") {
-          printDebugMessage("Command: Left arrow");
-          if (_firstTimePan) {
-            _firstTimePan = false;
-            bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
-            printDebugMessage("First time pan");
-          }
-
-          bleKeyboard.write(DMD2_KEYCODE_LEFT_ARROW);
-        }
-        else if (input == "right") {
-          printDebugMessage("Command: Right arrow");
-          if (_firstTimePan) {
-            _firstTimePan = false;
-            bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
-            printDebugMessage("First time pan");
-          }
-
-          bleKeyboard.write(DMD2_KEYCODE_RIGHT_ARROW);
-        }
-        else if (input == "zin") {
-          printDebugMessage("Command: Zoom In");
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
-        }
-        else if (input == "zinx") {
-          printDebugMessage("Command: Zoom In x5");
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_IN);
-        }
-        else if (input == "zout") {
-          printDebugMessage("Command: Zoom Out");
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
-        }
-        else if (input == "zoutx") {
-          printDebugMessage("Command: Zoom Out x5");
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);          
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);          
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
-          bleKeyboard.write(DMD2_KEYCODE_ZOOM_OUT);
-        }
-        else if (input == "ctr") {
-          printDebugMessage("Command: Center (Toggle follow)");
-          bleKeyboard.write(DMD2_KEYCODE_CENTER);
-          _firstTimePan = true;
-        }
-        else if (input == "onl") {
-          printDebugMessage("Command: Toogle online layer");
-          bleKeyboard.write(DMD2_KEYCODE_ONLINE_LAYER);
-        }
-        else if (input == "play") {
-          printDebugMessage("Command: Play/Pause Media");
-          bleKeyboard.write(DMD2_KEYCODE_PLAY_PAUSE);
-        }
-        else if (input == "next") {
-          printDebugMessage("Command: Next Track");
-          bleKeyboard.write(DMD2_KEYCODE_NEXT_TRACK);
-        }
-        else if (input == "mute") {
-          printDebugMessage("Command: Mute");
-          bleKeyboard.write(DMD2_KEYCODE_MUTE);
-        }
-        else {
-          Serial.printf("Unknown command: %s\n", input);
-        }
-      } else {
-        // Normal
-
-        if (input == "todo") {
-          // TODO
-        } else {
-          Serial.printf("Unknown command: %s\n", input);
-        }
-      }
+      printFormattedSerialMessage("Unknown command: %s\n", input);
     }
   }
 }
@@ -311,7 +330,7 @@ void handleDiagStateLogic() {
   
   if (now - _diagEnterTime >= DIAG_MAX_TIME_MSEC) {
     // Automatically exit diagnostics mode
-    Serial.println("Auto exiting diagnostics mode, back to normal mode");
+    printDebugMessage("Auto exiting diagnostics mode, back to normal mode");
     _lastBlinkTime = 0;
     _diagEnterTime = 0;
     _programState = ProgramState::Normal;
@@ -331,8 +350,8 @@ void handleProgramStateLogic() {
   Single button on press event handler
  */
 void handleButtonPress(ButtonDefinition* buttonDef) {
-  Serial.printf("=> handleButtonPress: %s,", buttonDef->name);
-  Serial.printf("kind: %u, action1: %u, action2: %u\n", 
+  printFormattedSerialMessage("=> handleButtonPress: %s,", buttonDef->name);
+  printFormattedSerialMessage("kind: %u, action1: %u, action2: %u\n", 
     buttonDef->kind, 
     buttonDef->action1, 
     buttonDef->action2);
@@ -420,10 +439,13 @@ void handleContinousButton(ButtonDefinition* buttonDef) {
   }
 
   if (button->released()) {
-    Serial.printf("Continous Button %s released\n", buttonDef->name);
+    printFormattedSerialMessage("Continous Button %s released\n", buttonDef->name);
 
     _isButtonPressed = false;
     _firstButtonPush = false;
+    // TODO: Fix to use notify external led mode: idle, button pressed, button released
+    digitalWrite(EXTERNAL_LED_PIN, LOW);
+
     return;
   }
 }
@@ -466,12 +488,12 @@ void handleButtons() {
 void handleBLEKeyboardConnection() {
   if (_firstBLE && bleKeyboard.isConnected()) {
     _firstBLE = false;
-    Serial.println("Connected as a BT Keyboard");
+    printSerialMessage("Connected as a BT Keyboard");
   }
 
   if (!_firstBLE && !bleKeyboard.isConnected()) {
     _firstBLE = true;
-    Serial.println("Disconnected as a BT Keyboard");
+    printSerialMessage("Disconnected as a BT Keyboard");
   }
 }
 

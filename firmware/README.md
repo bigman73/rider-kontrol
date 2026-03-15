@@ -33,7 +33,7 @@ Github: [avdweb_Switch](https://github.com/avdwebLibraries/avdweb_Switch)
 
 // TODO: Image of buttons with labels for each button
 
-| Pin Number | Description |
+| GPIO Pin Number | Description |
 |------------|------------------------------------|
 | 0          | Button 1 (+) |
 | 1          | Button 2 (-) |
