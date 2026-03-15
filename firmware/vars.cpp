@@ -14,4 +14,5 @@ unsigned long _lastButtonOnCheckTime = 0;
 unsigned long _lastButtonPressed = 0;
 bool _firstButtonPush = false;
 bool _isButtonPressed = false;
+bool _externalLEDButtonOn = false;
 ButtonDefinition* _buttons[NUM_BUTTONS] = { nullptr };

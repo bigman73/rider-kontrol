@@ -154,21 +154,31 @@ void heartbeatExternalLED() {
     digitalWrite(EXTERNAL_LED_PIN, LOW);
   }
 }
+
 /*
   Controls the external LED
 */
 void controlExternalLED() {
-  // When button is pushed, override all other external LED logic
+  // When button is pushed, override and disable all other external LED logic
   if (_isButtonPressed) {
-    digitalWrite(EXTERNAL_LED_PIN, HIGH);
+      // Detect a change, from not pressed to pressed - need to turn on the LED
+    if (!_externalLEDButtonOn) {
+      digitalWrite(EXTERNAL_LED_PIN, HIGH);
+      _externalLEDButtonOn = true;
+    }
 
     return;
+  }
+
+  // Detect a change, from pressed to not pressed - need to turn off the LED
+  if (_externalLEDButtonOn && !_isButtonPressed) {
+    _externalLEDButtonOn = false;
+    digitalWrite(EXTERNAL_LED_PIN, LOW);
   }
 
   if (_programState == ProgramState::Normal) {
     heartbeatExternalLED();
   } else if (_programState == ProgramState::Diag) {
-    // TODO: Should blink the external LED fast for some MSEC every MSEC (e.g., 250 msec on off )
     digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
   }
 }
@@ -415,10 +425,6 @@ void handleContinousButton(ButtonDefinition* buttonDef) {
 // Note: `pushed` is a one time transition on the trigger from unpushed to pushed,
   //  unlike `on` which is a current state of button
   if (button->pushed()) {
-    // TODO: Constant for RGB colors, move RGB logic to interrupt handler, button press should override program state
-    // TODO: Introduce LED state of button push?
-    //neopixelWrite(ONBOARD_LED_PIN, 70,70,0);
-    // TODO: Keep lastOnCheck and _firstButtonPush per button
     _lastButtonOnCheckTime = now;
     _firstButtonPush = true;
     _isButtonPressed = true;
@@ -449,8 +455,6 @@ void handleContinousButton(ButtonDefinition* buttonDef) {
 
     _isButtonPressed = false;
     _firstButtonPush = false;
-    // TODO: Fix to use notify external led mode: idle, button pressed, button released
-    digitalWrite(EXTERNAL_LED_PIN, LOW);
 
     return;
   }
@@ -465,6 +469,7 @@ void handleShortLongButton(ButtonDefinition* buttonDef) {
 
   if (button->pushed()) {
     _lastButtonPressed = now;
+    _isButtonPressed = true;
   }
 
   // FIXME: sends sometimes multiple released true
@@ -478,6 +483,8 @@ void handleShortLongButton(ButtonDefinition* buttonDef) {
     );
       
     _lastButtonPressed = 0;
+    _isButtonPressed = false;
+
     if (buttonDef->isCodes1Media) {
       sendBluetoothMediaKey(buttonDef->keyCodes1);
     } else {
@@ -498,6 +505,8 @@ void handleShortLongButton(ButtonDefinition* buttonDef) {
     );
 
     _lastButtonPressed = 0;
+    _isButtonPressed = false;
+
     if (buttonDef->isCodes1Media) {
       sendBluetoothMediaKey(buttonDef->keyCodes2);
     } else {
