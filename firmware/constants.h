@@ -35,6 +35,8 @@ constexpr unsigned long LED_BLINK_INTERVAL_MSEC = 2000;
 constexpr unsigned long LED_DIAG_BLINK_INTERVAL_MSEC = 500;
 constexpr unsigned long EXT_LED_HEARTBEAT_CADENCE_MSEC = 5000;
 constexpr unsigned long EXT_LED_HEARTBEAT_DURATION_MSEC = 100;
+constexpr unsigned long EXT_LED_HEARTBEAT_COOLDOWN_MSEC = 2000;
+
 
 // Pin assignments
 // Note: On Lolin C3 Mini v2.1.0 the onboard LED is RGB color and uses pin 7

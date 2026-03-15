@@ -96,6 +96,24 @@ void controlOnboardLED() {
   }
 }
 
+void heartbeatExternalLED() {
+  unsigned long now = millis();
+
+  if (now - _lastButtonPressed < EXT_LED_HEARTBEAT_COOLDOWN_MSEC) {
+    // Only heartbeat after some cooling after button pressed
+    return;
+  }
+
+  unsigned long currentTimeWindow = now % EXT_LED_HEARTBEAT_CADENCE_MSEC;
+  if (!_externalLedHeartbeat && currentTimeWindow >=0 && currentTimeWindow <= EXT_LED_HEARTBEAT_DURATION_MSEC) {
+    // Blink the external LED for some MSEC every MSEC (e.g., 100 msec then rest 4900 msec)
+    _externalLedHeartbeat = true;
+    digitalWrite(EXTERNAL_LED_PIN, HIGH);
+  } else if (_externalLedHeartbeat && currentTimeWindow > EXT_LED_HEARTBEAT_DURATION_MSEC) {
+    _externalLedHeartbeat = false;
+    digitalWrite(EXTERNAL_LED_PIN, LOW);
+  }
+}
 /*
   Controls the external LED
 */
@@ -107,18 +125,8 @@ void controlExternalLED() {
     return;
   }
 
-  unsigned long now = millis();
-
   if (_programState == ProgramState::Normal) {
-    unsigned long currentTimeWindow = now % EXT_LED_HEARTBEAT_CADENCE_MSEC;
-    if (!_externalLedHeartbeat && currentTimeWindow >=0 && currentTimeWindow <= EXT_LED_HEARTBEAT_DURATION_MSEC) {
-      // Blink the external LED for some MSEC every MSEC (e.g., 100 msec then rest 4900 msec)
-      _externalLedHeartbeat = true;
-      digitalWrite(EXTERNAL_LED_PIN, HIGH);
-    } else if (_externalLedHeartbeat && currentTimeWindow > EXT_LED_HEARTBEAT_DURATION_MSEC) {
-      _externalLedHeartbeat = false;
-      digitalWrite(EXTERNAL_LED_PIN, LOW);
-    }
+    heartbeatExternalLED();
   } else if (_programState == ProgramState::Diag) {
     // TODO: Should blink the external LED fast for some MSEC every MSEC (e.g., 250 msec on off )
     digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
@@ -355,6 +363,8 @@ void handleButtonPress(ButtonDefinition* buttonDef) {
     buttonDef->kind, 
     buttonDef->action1, 
     buttonDef->action2);
+
+  _lastButtonPressed = millis();
 
   if (buttonDef->action1 == RiderKontrolAction::PanUp) {
     printDebugMessage("Action: Pan Up");
