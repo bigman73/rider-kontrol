@@ -21,9 +21,13 @@ There’s nothing more frustrating (or dangerous) than trying to poke at a touch
 - Low cost: DYI project with fully open source firmware
 
 
+## 🏍️ Usage
+TODO: Image + video of Rider Kontrol mounted on a motorcycle
+
 ## 🛠️ Hardware
 
-This project is built around the ESP32 C3 Mini micro controller, which can be programmed with the Arduino IDE. Its compact footprint and native BLE and Wifi support make it the perfect brain for a sleek handlebar remote.
+This project is built around the [Lolin C3 mini board](https://www.wemos.cc/en/latest/c3/c3_mini.html), which can be programmed with the Arduino IDE. Its compact footprint and native BLE and Wifi support make it the perfect brain for a sleek handlebar remote.
+The board uses the `ESP32-C3FH4` microcontroller.
 
 ## ⚠️ Safety & Legal Disclaimer
 

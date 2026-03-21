@@ -29,6 +29,12 @@ Github: [avdweb_Switch](https://github.com/avdwebLibraries/avdweb_Switch)
 
 
 # Configuration and settings
+## Lolin C3 mini - Board layout
+
+<img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets/c3_mini_v2.1.0_1_16x16.jpg" alt="Button Layout" width="300" />
+
+<img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets/c3_mini_v2.1.0_2_16x16.jpg" alt="Button Layout" width="300" />
+
 ## Button Layout
 <img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets/RiderKontrolButtons.png" alt="Button Layout" width="400" />
 
