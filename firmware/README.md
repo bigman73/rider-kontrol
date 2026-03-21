@@ -46,6 +46,40 @@ Github: [avdweb_Switch](https://github.com/avdwebLibraries/avdweb_Switch)
 | 7          | Onboard RGB LED |
 | 10         | External LED |
 
+## Soldering / Physical Connections
+| From | To | Description |
+|--------------|---------------------------|--|
+| B1 negative leg (any [1]) | B2 negative leg (any [1]) | Button negative bus |
+| B2 negative leg | B3 negative leg (any [1], [3]) | Button negative bus |
+| B3 negative leg [3] | B4 negative leg (any [1]) | Button negative bus |
+| B3 negative leg [3] | B8 negative leg (any [1]) | Button negative bus |
+| B8 negative leg | B5 negative leg (any [1]) | Button negative bus |
+| B5 negative leg | B6 negative leg (any [1]) | Button negative bus |
+| B6 negative leg | B7 negative leg (any [1]) | Button negative bus |
+| B6 negative leg | C3 GND | Negative bus connection to C3 |
+| USB GND (Black wire) [4] | C3 GND PIN | External power source GND (0V) |
+| USB Power (Red wire) [4] | C3 Vbus PIN | External power source Vbus (5V) |
+| B1 positive leg [2] | GPIO Pin #0 | Button 1 signal |
+| B2 positive leg [2] | GPIO Pin #1 | Button 2 signal |
+| B3 positive leg [2] | GPIO Pin #2 | Button 3 signal |
+| B4 positive leg [2] | GPIO Pin #3 | Button 4 signal |
+| B5 positive leg [2] | GPIO Pin #4 | Button 5 signal |
+| B6 positive leg [2] | GPIO Pin #5 | Button 6 signal |
+| B7 positive leg [2] | GPIO Pin #6 | Button 7 signal |
+| B8 positive leg [2] | GPIO Pin #8 | Button 8 signal |
+| External LED Negative wire (black) | C3 GND | External LED ground |
+| External LED Positive wire (red) | GPIO Pin #10 | External LED signal |
+
+> Notes
+
+[1] The chosen leg will be the negative. Buttons have no polarity, but consistency is important
+
+[2] The button leg, which is not the chosen negative leg in [1]
+
+[3] B3 has 3 connections - from B2, B4 and to B8
+
+[4] The white and green USB cable wires are data lines and are not used; they should be cut
+
 ## Button Mapping
 
 | Description | Usage Short | Usage Long |
