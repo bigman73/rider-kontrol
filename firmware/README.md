@@ -29,9 +29,10 @@ Github: [avdweb_Switch](https://github.com/avdwebLibraries/avdweb_Switch)
 
 
 # Configuration and settings
-## Pin Layout
+## Button Layout
+<img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets/RiderKontrolButtons.png" alt="Button Layout" width="400" />
 
-// TODO: Image of buttons with labels for each button
+## Pin Layout
 
 | GPIO Pin Number | Description |
 |------------|------------------------------------|
@@ -46,7 +47,7 @@ Github: [avdweb_Switch](https://github.com/avdwebLibraries/avdweb_Switch)
 | 7          | Onboard RGB LED |
 | 10         | External LED |
 
-## Soldering / Physical Connections
+## Physical Connections / Soldering ⚡️
 | From | To | Description |
 |--------------|---------------------------|--|
 | B1 negative leg (any [1]) | B2 negative leg (any [1]) | Button negative bus |
@@ -82,27 +83,28 @@ Github: [avdweb_Switch](https://github.com/avdwebLibraries/avdweb_Switch)
 
 ## Button Mapping
 
-| Description | Usage Short | Usage Long |
-|------------------------------------|--|--|
-| Button 1 (+)      |Zoom In - Key [+]|Zoom In 10x - Repeated Key [+] 10 times|
-| Button 2 (-) |Zoom Out - Key [-] |Zoom In 10x - Repeated Key [-] 10 times|
-| Button 3 (P) |Play/Pause Music - Key [TODO]||
-| Button 4 (C) |Center Map - Key [0]|Buttons mapping change|
-| Button 5 ⬅️   | Scroll map left - Key [TODO]||
-| Button 6 ➡️   | Scroll map right - Key [TODO] ||
-| Button 7 ⬆️   | Scroll map up - Key [TODO]||
-| Button 8 ⬇️   | Scroll map down - Key [TODO]||
+| Description | Role | Usage Short | Usage Long |
+|------------------------------------|--|--|--|
+| Button 1 | `+`    | Zoom In       | Zoom In Continous - repeated until released|
+| Button 2 | `-`    | Zoom Out      | Zoom Out Continuous |
+| Button 3 | `P`     | Play/Pause Music|Next Track|
+| Button 4 | `C`     | Center Map / Toggle follow mode|OTA mode|
+| Button 5 | ⬆️   | Pan Map Up    | Pan Map Up Continous|
+| Button 6 | ➡️   | Pan Map Right | Pan Map Right Continous|
+| Button 7 | ⬇️   | Pan Map Down  | Pan Map Down Continous|
+| Button 8 | ⬅️   | Pan Map Left  | Pan Map Up Continous|
 
 
 ## DMD2 Remote Controller Setup
 
 The default key mappings for Map View, in DMD2, are conflicting with their other key mappings
 
-1. Pair and connect a BT keyboard (such as Logitech MX) to the DMD2 device (or Android with DMD2 ) app.
-2. Open the Setting menu (Cog icon, bottom menu)
-3. Menu -> Setup Remote Controller -> Map View
-4. Click on menu item Function 5 - `Follow Toggle` - This will be used as `Center` button
-5. On the keyboard, press the '0' key (left of backspace). Key code should be set to 7
-6. Similarly, menu item Function 6 - `Online Layer`, on the keyboard, press the '~' key. Key code => 68
-7. Function 7 | `Zoom In` - Key '+' => Key Code: 70
-8. Function 8 | `Zoom Out` - Key '-' => Key Code: 69
+1. Pair and connect a BT keyboard (such as [Logitech MX Keys S](https://www.logitech.com/en-us/shop/p/mx-keys-s)) to the DMD2 device (e.g., T665), or Android with DMD2 app.
+2. In DMD2 App, open the Settings dialog (⚙️ Cog icon, bottom menu)
+3. Menu -> `Setup Remote Controller` -> `Map View`
+4. Click on menu item Function 5 - `Follow Toggle`; This will be used as `Center` button
+5. On the keyboard, press the `0` key (left of backspace). Key code should be set to `7`
+6. Similarly:
+  * Function 6 - `Online Layer`, on the keyboard, press the `~` key. Key code should show `68`
+  * Function 7 - `Zoom In`; Key `+` => Key code: `70`
+  * Function 8 - `Zoom Out`; Key `-` => Key code: `69`
