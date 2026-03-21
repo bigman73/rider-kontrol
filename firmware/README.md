@@ -32,6 +32,19 @@ Github: [avdweb_Switch](https://github.com/avdwebLibraries/avdweb_Switch)
 ## Button Layout
 <img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets/RiderKontrolButtons.png" alt="Button Layout" width="400" />
 
+## Button Mapping
+
+| Name | Description | Role | Usage Short | Usage Long |
+|------------------------------------|--|--|--|--|
+| B1 | Button 1 | `+`    | Zoom In       | Zoom In Continous - repeated until released|
+| B2 | Button 2 | `-`    | Zoom Out      | Zoom Out Continuous |
+| B3 | Button 3 | `P`     | Play/Pause Music|Next Track|
+| B4 | Button 4 | `C`     | Center Map / Toggle follow mode|OTA mode|
+| B5 | Button 5 | ⬆️   | Pan Map Up    | Pan Map Up Continous|
+| B6 | Button 6 | ➡️   | Pan Map Right | Pan Map Right Continous|
+| B7 | Button 7 | ⬇️   | Pan Map Down  | Pan Map Down Continous|
+| B8 | Button 8 | ⬅️   | Pan Map Left  | Pan Map Up Continous|
+
 ## Pin Layout
 
 | GPIO Pin Number | Description |
@@ -80,19 +93,6 @@ Github: [avdweb_Switch](https://github.com/avdwebLibraries/avdweb_Switch)
 [3] B3 has 3 connections - from B2, B4 and to B8
 
 [4] The white and green USB cable wires are data lines and are not used; they should be cut
-
-## Button Mapping
-
-| Description | Role | Usage Short | Usage Long |
-|------------------------------------|--|--|--|
-| Button 1 | `+`    | Zoom In       | Zoom In Continous - repeated until released|
-| Button 2 | `-`    | Zoom Out      | Zoom Out Continuous |
-| Button 3 | `P`     | Play/Pause Music|Next Track|
-| Button 4 | `C`     | Center Map / Toggle follow mode|OTA mode|
-| Button 5 | ⬆️   | Pan Map Up    | Pan Map Up Continous|
-| Button 6 | ➡️   | Pan Map Right | Pan Map Right Continous|
-| Button 7 | ⬇️   | Pan Map Down  | Pan Map Down Continous|
-| Button 8 | ⬅️   | Pan Map Left  | Pan Map Up Continous|
 
 
 ## DMD2 Remote Controller Setup
