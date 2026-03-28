@@ -1,4 +1,13 @@
 # Development Environment Setup
+
+## Arduino IDE
+Arudino IDE was used to upload the firmware for this project. Cursor was used for coding.
+Those are arbitrary choices, other IDEs could be used.
+
+Verified version: 2.3.8
+Install [Arduino IDE](https://www.arduino.cc/en/software/)
+
+
 ## ESP32 Board
 Install ESP32 board by Espressif, follow this [Getting Started document](
 https://randomnerdtutorials.com/getting-started-esp32-c3-super-mini/)
@@ -6,6 +15,27 @@ https://randomnerdtutorials.com/getting-started-esp32-c3-super-mini/)
 Verified version: v2.0.17
 
 > NOTE: DO NOT upgrade to 3.x, as it has breaking changes
+
+## Arduino IDE Configuration
+
+### Tools
+Click the top menu `Tools` item, then verify or modify each sub-menu item per the table below
+
+| Sub Menu Item  | Value      | Description                                                                 |
+|------------|------------|-----------------------------------------------------------------------------|
+| Board      | `esp32` -> `ESP32C3 Dev Module` | The board to use with Lolin C3 Mini microcontroller<br>⚠️ WARNING: Do not use the `Lolin C3 Mini` board configuration as it has the wrong partition size |
+| Port       | `/dev/cu.usbmodem101`       | The port to connect to the development board<br>ℹ️ NOTE: Value could be different, per hosting machine |
+| USB CDC On Boot | `Enabled`  | Enables serial communications through USB |
+| CPU Frequency    | `160Mhz (Wifi)`        | The CPU frequency of the micontroller |
+| Core Debug Level | `None`        | The level for logs output by the core<br>ℹ️ NOTE: Could be set to `Info` or other values for debugging|
+| Erase All Flash Before Sketch Upload | `Disabled` | Normally not needed |
+| Flash Frequency | `40Mhz` | The frequency of flash<br>⚠️ WARNING: A critical value that if set too high will fail to upload firmwares |
+| Flash Mode | `DIO` | Dual I/O flash mode. Default value<br>⚠️ WARNING: A critical value, do not modify |
+| Flash size | `4MB (32Mb)`  | Default value |
+| JTAG Adapter  | `Disabled` | JTAG debugging is not used |
+| Partition Schema | `Minimal SPIFFS (1.9MB APP with OTA/190KB SPIFFS)` | The schema for partitioning the microcontroller storage<br>⚠️ WARNING: A critical and *non-default* value. Without it the firmware would not fit |
+| Upload Speed | `115200` | The upload speed in baud. Setting it above might lead to failure to upload firmwares<br>⚠️ WARNING: A critical and *non default* value |
+
 
 ## Required Arduino Libraries
 
