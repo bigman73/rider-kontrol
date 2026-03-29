@@ -122,3 +122,14 @@ constexpr const char* COMMAND_DIAG_PLAY_MEDIA = "play";
 constexpr const char* COMMAND_DIAG_NEXT_MEDIA = "next";
 constexpr const char* COMMAND_DIAG_MUTE_MEDIA = "mute";
 constexpr const char* COMMAND_DIAG_VERSION = "version";
+
+// WIFI OTA
+constexpr const int WIFI_CONNECT_TIMEOUT_MS = 20000;
+// NVS namespace and keys for WiFi credentials (write once via another sketch or NVS tool).
+constexpr const char* const PREFS_NS_WIFI = "rkwifi";
+constexpr const char* const PREFS_KEY_SSID = "ssid";
+constexpr const char* const PREFS_KEY_PASSWORD = "password";
+
+constexpr const char* const PREFS_NS_OTA = "rkota";
+constexpr const char* const PREFS_KEY_OTA_PASSWORD = "password";
+constexpr const char* const DEFAULT_OTA_PASSWORD = "admin";

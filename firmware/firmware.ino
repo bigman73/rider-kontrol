@@ -3,6 +3,8 @@
 #include "buttonDefinition.h"
 #include <BleKeyboard.h>
 #include <avdweb_Switch.h>
+#include "diagnostics.h"
+#include "wifiOTA.h"
 
 // Initialize the BLE keyboard
 BleKeyboard bleKeyboard(
@@ -358,7 +360,12 @@ void handleSerialInput() {
     input.toLowerCase(); // Make it case-insensitive
 
     // TODO: Add more commands
-    if (input == "diag") {
+    if (input == "reboot") {
+      Serial.println("Rebooting...");
+      delay(100);
+      ESP.restart();
+      return;
+    } else if (input == "diag") {
       setDiagnosticsMode();
     } else if (input == "normal") {
       setNormalMode();
@@ -584,9 +591,12 @@ void handleBLEKeyboardConnection() {
   Serial.begin(SERIAL_BAUD_RATE);
   delay(SERIAL_TIMEOUT_MSEC);  // Wait for serial port to connect and initialize
 
+  printPartitionInfo();
+
   setupButtons();
 
   setupBluetooth();
+  setupWifiOTA();
 
   printFirmwareVersion();
 }
