@@ -10,7 +10,7 @@ template <typename T, size_t N>
 constexpr size_t arraySize(const T (&)[N]) { return N; }
 
 // Firmware metadata
-constexpr const char* FIRMWARE_VERSION = "0.0.4";
+constexpr const char* FIRMWARE_VERSION = "0.0.5";
 constexpr const char* FIRMWARE_NAME = "Rider Kontrol";
 
 constexpr const char* BLUETOOTH_DEVICE = "Rider Kontrol";
