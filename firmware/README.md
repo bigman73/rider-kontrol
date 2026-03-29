@@ -1,11 +1,28 @@
 # Development Environment Setup
 
-## Arduino IDE
-Arudino IDE was used to upload the firmware for this project. Cursor was used for coding.
-Those are arbitrary choices, other IDEs could be used.
+## IDE
+`Arudino IDE` is optional - Can be used to compile and upload the firmware for this project. Easy to use UI for installing libraries, but that can also be done using the Arduino CLI.
+However, `Cursor` or another VSCode-based IDE is recommended for coding.
+
+> ⚠️ **Warning:** Arduino IDE, as of version 2.3.8, has a major bug that loads the firmware into the wrong partition schema when using OTA/Wifi. The IDE incorrectly uses the default partition schema instead of the one selected in the IDE (See: Configuration below). Use the `scripts` instead to compile and upload the firmware, both for USB and OTA/Wifi.
 
 Verified version: 2.3.8
 Install [Arduino IDE](https://www.arduino.cc/en/software/)
+
+## Arduino CLI
+
+On MacOS:
+```bash
+brew install arduino-cli
+```
+
+```
+arduino-cli core update-index
+arduino-cli core install esp32:esp32@2.0.17
+
+# Verify that the board was installed
+arduino-cli core list
+```
 
 
 ## ESP32 Board
@@ -14,7 +31,7 @@ https://randomnerdtutorials.com/getting-started-esp32-c3-super-mini/)
 
 Verified version: v2.0.17
 
-> NOTE: DO NOT upgrade to 3.x, as it has breaking changes
+> NOTE: DO NOT upgrade to 3.x, as it has breaking changes, specifically for the `ESP32-BLE-Keyboard` library
 
 ## Arduino IDE Configuration
 
@@ -144,3 +161,18 @@ The default key mappings for Map View, in DMD2, are conflicting with their other
   * Function 6 - `Online Layer`, on the keyboard, press the `~` key. Key code should show `68`
   * Function 7 - `Zoom In`; Key `+` => Key code: `70`
   * Function 8 - `Zoom Out`; Key `-` => Key code: `69`
+
+
+# Compiling and deploying
+
+The `./firmware/scripts` folder contains the following scripts:
+
+| Script Name         | Filename               | Description                                                                                 |
+|---------------------|------------------------|---------------------------------------------------------------------------------------------|
+| Compile Firmware    | `compile.sh`           | Compiles the firmware using `arduino-cli` for the ESP32C3 board. Also prints partition info. |
+| Upload only (no compile) of Firmware using USB | `upload-only-usb.sh`           | Uploads the already compiled firmware binary using `arduino-cli` for the ESP32C3 board. |
+| Upload and Compile Firmware via USB      | `upload-usb.sh`           | Compiles and uploads the firmware to the ESP32C3 board over USB using `arduino-cli`. |
+| Upload Firmware via OTA (no compile)     | `upload-only-ota.sh`      | Uploads an already-compiled firmware binary to the ESP32C3 board over-the-air (OTA/Wifi) using the `ESP32 OTA` tool. |
+| Upload and Compile Firmware via OTA      | `upload-ota.sh`           | Compiles and uploads the firmware to the ESP32C3 board over-the-air (OTA/Wifi). |
+| Serial Monitor Tool                      | `serialmon.sh`            | Opens a serial monitor connection to the ESP32C3 board for debugging and monitoring output. |
+| Board Information/Diagnostics            | `board-info.sh`           | Displays ESP32C3 board and serial port info. |
