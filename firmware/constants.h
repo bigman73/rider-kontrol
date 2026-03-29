@@ -10,7 +10,7 @@ template <typename T, size_t N>
 constexpr size_t arraySize(const T (&)[N]) { return N; }
 
 // Firmware metadata
-constexpr const char* FIRMWARE_VERSION = "0.0.5";
+constexpr const char* FIRMWARE_VERSION = "0.1.0";
 constexpr const char* FIRMWARE_NAME = "Rider Kontrol";
 
 constexpr const char* BLUETOOTH_DEVICE = "Rider Kontrol";
@@ -122,7 +122,8 @@ constexpr const char* COMMAND_DIAG_PLAY_MEDIA = "play";
 constexpr const char* COMMAND_DIAG_NEXT_MEDIA = "next";
 constexpr const char* COMMAND_DIAG_MUTE_MEDIA = "mute";
 constexpr const char* COMMAND_DIAG_VERSION = "version";
-
+constexpr const char* COMMAND_DIAG_REBOOT = "reboot";
+ 
 // WIFI OTA
 constexpr const int WIFI_CONNECT_TIMEOUT_MS = 20000;
 // NVS namespace and keys for WiFi credentials (write once via another sketch or NVS tool).

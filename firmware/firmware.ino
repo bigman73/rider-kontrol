@@ -1,207 +1,15 @@
 #include "constants.h"
 #include "vars.h"
-#include "buttonDefinition.h"
-#include <BleKeyboard.h>
 #include <avdweb_Switch.h>
+#include "buttonDefinition.h"
 #include "diagnostics.h"
+#include "commands.h"
+#include "utils.h"
+#include "bluetooth.h"
+#include "ledLogic.h"
 #include "wifiOTA.h"
 
-// Initialize the BLE keyboard
-BleKeyboard bleKeyboard(
-  BLUETOOTH_DEVICE, BLUETOOTH_MANUFACTURER, 
-  BLUETOOTH_BATT_LEVEL_DEFAULT);
-
-/**
-  Sends a Bluetooth key press
-
-  @param keyCodes Key codes to send over Bluetooth
- */
- void sendBluetoothKey(const uint8_t* keyCodes) {
-   if (!keyCodes) {
-     printSerialMessage("Error (sendBluetoothKey): keyCodes is null");
-   }
-
-   // Use the buffer overload
-   bleKeyboard.write(keyCodes, 1);
- }
-
- /**
-  Sends a Bluetooth media key press
-
-  @param mediaKey Media key codes to send over Bluetooth
- */
- void sendBluetoothMediaKey(const MediaKeyReport mediaKey) {
-  bleKeyboard.write(mediaKey);
-}
-
-/**
-  Sends a Bluetooth key press that is related to map panning
-  @param keyCodes Key codes to send over Bluetooth
- */
- void sendPanningBluetoothKey(const uint8_t* keyCodes) {
-  if (_firstTimePan) {
-    printSerialMessage("FirstTimePan");
-    _firstTimePan = false;
-    sendBluetoothKey(keyCodes);
-  }
-
-  sendBluetoothKey(keyCodes);
-}
-
-// TODO: Move to utility module
-/**
- * Print the firmware version message to the serial port.
- */
-void printFirmwareVersion() {
-  printFormattedSerialMessage("--= Firmware: %s v%s =--\n", FIRMWARE_NAME, FIRMWARE_VERSION);
-}
-
-// TODO: Move to utility module
-/**
- * Print a message line to the serial port.
- * @param message The message to print.
- */
-void printSerialMessage(String message) {
-  Serial.println(message);  // Print the message line.
-}
-
-/**
- * Print a formatted message line to the serial port.
-
- * @param message The message template to print.
- * @param args Arguments
- */
- template<typename... Args>
- void printFormattedSerialMessage(const String& message, Args... args) {
-  Serial.printf(message.c_str(), args...);  // Print the message line.
-}
-
-
-/**
- * Print a debug message line to the serial port.
- * @param message The message to print.
- */
-void printDebugMessage(String message) {
-  if (SERIAL_DEBUG) {
-    printSerialMessage("DEBUG: " + message);
-  }
-}
-
-/**
-  Controls the onboard LED
- */
-void controlOnboardLED() {
-  unsigned long now = millis();
-
-  if (_programState == ProgramState::Normal) {
-    // Check if the LED blink interval has elapsed.
-    if (now - _lastBlinkTime >= LED_BLINK_INTERVAL_MSEC) {
-      // Toggle the led state.
-      _ledOn = !_ledOn;
-      // Set the onboard led colors.
-      neopixelWrite(ONBOARD_LED_PIN, 
-        _ledOn ? LED_ON_RED : LED_OFF_RED, 
-        _ledOn ? LED_ON_GREEN : LED_OFF_GREEN, 
-        _ledOn ? LED_ON_BLUE : LED_OFF_BLUE);
-
-      // Set the external led state.
-      // TODO: Just for testing, should be removed later. The external LED will have its own code to handle the blink or other application modes.
-      //digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
-      // Update the last blink time.
-      _lastBlinkTime = now;
-
-      // Print the loop count if the led is on.
-      if (_ledOn) {
-        printDebugMessage("Blink " + String(_loopCount));
-        _loopCount++;
-      }
-    }
-  }
-
-  if (_programState == ProgramState::Diag) {
-     // Check if the LED diagnostics blink interval has elapsed.
-     if (now - _lastBlinkTime >= LED_DIAG_BLINK_INTERVAL_MSEC) {
-      // Toggle the led state.
-      _ledOn = !_ledOn;
-      // Set the onboard led colors.
-      neopixelWrite(ONBOARD_LED_PIN, 
-        _ledOn ? LED_DIAG_ON_RED : LED_DIAG_OFF_RED, 
-        _ledOn ? LED_DIAG_ON_GREEN : LED_DIAG_OFF_GREEN, 
-        _ledOn ? LED_DIAG_ON_BLUE : LED_DIAG_OFF_BLUE);
-
-      // Update the last blink time.
-      _lastBlinkTime = now;
-    }
-  }
-}
-
-/**
-  Blink heartbeat of external LED
- */
-void heartbeatExternalLED() {
-  unsigned long now = millis();
-
-  if (now - _lastButtonPressed < EXT_LED_HEARTBEAT_COOLDOWN_MSEC) {
-    // Only heartbeat after some cooling after button pressed
-    return;
-  }
-
-  unsigned long currentTimeWindow = now % EXT_LED_HEARTBEAT_CADENCE_MSEC;
-  if (!_externalLedHeartbeat && currentTimeWindow >=0 && currentTimeWindow <= EXT_LED_HEARTBEAT_DURATION_MSEC) {
-    // Blink the external LED for some MSEC every MSEC (e.g., 100 msec then rest 4900 msec)
-    _externalLedHeartbeat = true;
-    digitalWrite(EXTERNAL_LED_PIN, HIGH);
-  } else if (_externalLedHeartbeat && currentTimeWindow > EXT_LED_HEARTBEAT_DURATION_MSEC) {
-    _externalLedHeartbeat = false;
-    digitalWrite(EXTERNAL_LED_PIN, LOW);
-  }
-}
-
-/*
-  Controls the external LED
-*/
-void controlExternalLED() {
-  // When button is pushed, override and disable all other external LED logic
-  if (_isButtonPressed) {
-      // Detect a change, from not pressed to pressed - need to turn on the LED
-    if (!_externalLEDButtonOn) {
-      digitalWrite(EXTERNAL_LED_PIN, HIGH);
-      _externalLEDButtonOn = true;
-    }
-
-    return;
-  }
-
-  // Detect a change, from pressed to not pressed - need to turn off the LED
-  if (_externalLEDButtonOn && !_isButtonPressed) {
-    _externalLEDButtonOn = false;
-    digitalWrite(EXTERNAL_LED_PIN, LOW);
-  }
-
-  if (_programState == ProgramState::Normal) {
-    heartbeatExternalLED();
-  } else if (_programState == ProgramState::Diag) {
-    digitalWrite(EXTERNAL_LED_PIN, _ledOn ? HIGH : LOW);
-  }
-}
-
-/**
- * Control the LEDs.
- */
-void controlLEDs() {
-  controlOnboardLED();
-  controlExternalLED();
-}
-
 // --------------------------------------------------------------------------
-
-/**
-  Setup bluetooth
- */
-void setupBluetooth() {
-  printSerialMessage("Starting BLE Keyboard");
-  bleKeyboard.begin();
-}
 
 /**
   Setup the buttons, assign their GPIO pin, button kind and actions
@@ -256,86 +64,14 @@ void setupButtons() {
   );
 }
 
+
+
 /**
-  Process the diagnostics menu commands
-
-  * @param input The serial command input.
+ * @brief Sets the program state to Diagnostics Mode and initializes mode-specific variables.
+ *
+ * This function changes the global program state to diagnostics, resets the blink and
+ * enter time trackers, and prints a message indicating the mode change to serial.
  */
-void processDiagMenu(String input) {
-  if (input == COMMAND_DIAG_HELLO) {
-    printFormattedSerialMessage("Welcome to %s!\n", FIRMWARE_NAME);
-    printSerialMessage("Printing [Hello world] to BT keyboard");
-    bleKeyboard.print("Hello world");
-  } else if (input == COMMAND_DIAG_UP) {
-    printSerialMessage("Command: Up arrow");
-    sendPanningBluetoothKey(DMD2_KEYCODE_UP_ARROW);
-  }
-  else if (input == COMMAND_DIAG_DOWN) {
-    printSerialMessage("Command: Down arrow");
-    sendPanningBluetoothKey(DMD2_KEYCODE_DOWN_ARROW);
-  }
-  else if (input == COMMAND_DIAG_LEFT) {
-    printSerialMessage("Command: Left arrow");
-    sendPanningBluetoothKey(DMD2_KEYCODE_LEFT_ARROW);
-  }
-  else if (input == COMMAND_DIAG_RIGHT) {
-    printSerialMessage("Command: Right arrow");
-    sendPanningBluetoothKey(DMD2_KEYCODE_RIGHT_ARROW);
-  }
-  else if (input == COMMAND_DIAG_ZOOM_IN) {
-    printSerialMessage("Command: Zoom In");
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
-  }
-  else if (input == COMMAND_DIAG_ZOOM_IN_X) {
-    printSerialMessage("Command: Zoom In x5");
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_IN);
-
-  }
-  else if (input == COMMAND_DIAG_ZOOM_OUT) {
-    printSerialMessage("Command: Zoom Out");
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
-  }
-  else if (input == COMMAND_DIAG_ZOOM_OUT_X) {
-    printSerialMessage("Command: Zoom Out x5");
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
-    sendPanningBluetoothKey(DMD2_KEYCODE_ZOOM_OUT);
-  }
-  else if (input == COMMAND_DIAG_CENTER) {
-    printSerialMessage("Command: Center (Toggle follow)");
-    sendBluetoothKey(DMD2_KEYCODE_CENTER);
-    _firstTimePan = true;
-  }
-  else if (input == COMMAND_DIAG_SAT_LAYER) {
-    printSerialMessage("Command: Toogle satelite layer");
-    sendBluetoothKey(DMD2_KEYCODE_ONLINE_LAYER);
-  }
-  else if (input == COMMAND_DIAG_PLAY_MEDIA) {
-    printSerialMessage("Command: Play/Pause Media");
-    sendBluetoothMediaKey(DMD2_KEYCODE_PLAY_PAUSE);
-  }
-  else if (input == COMMAND_DIAG_NEXT_MEDIA) {
-    printSerialMessage("Command: Next Track");
-    sendBluetoothMediaKey(DMD2_KEYCODE_NEXT_TRACK);
-  }
-  else if (input == COMMAND_DIAG_MUTE_MEDIA) {
-    printSerialMessage("Command: Mute");
-    sendBluetoothMediaKey(DMD2_KEYCODE_MUTE);
-  }
-  else if (input == COMMAND_DIAG_VERSION) {
-    printFirmwareVersion();
-  }
-  else {
-    printFormattedSerialMessage("Unknown diagnostics command: %s\n", input);
-  }
-}
-
 void setDiagnosticsMode() {
   _programState = ProgramState::Diag;
   _lastBlinkTime = 0;
@@ -343,6 +79,12 @@ void setDiagnosticsMode() {
   printSerialMessage("Program State: Diagnostics Mode");
 }
 
+/**
+ * @brief Sets the program state to Normal Mode and initializes mode-specific variables.
+ *
+ * This function changes the global program state to Normal, resets the blink and
+ * enter time trackers, and prints a message indicating the mode change to serial.
+ */
 void setNormalMode() {
   _programState = ProgramState::Normal;
   _lastBlinkTime = 0;
@@ -359,13 +101,7 @@ void handleSerialInput() {
     input.trim(); // Clean up spaces or carriage returns
     input.toLowerCase(); // Make it case-insensitive
 
-    // TODO: Add more commands
-    if (input == "reboot") {
-      Serial.println("Rebooting...");
-      delay(100);
-      ESP.restart();
-      return;
-    } else if (input == "diag") {
+    if (input == "diag") {
       setDiagnosticsMode();
     } else if (input == "normal") {
       setNormalMode();
@@ -558,20 +294,7 @@ void handleButtons() {
   }
 }
 
-/**
-  Handles the BLE Keyboard connection logic
- */
-void handleBLEKeyboardConnection() {
-  if (_firstBLE && bleKeyboard.isConnected()) {
-    _firstBLE = false;
-    printSerialMessage("Connected as a BT Keyboard");
-  }
 
-  if (!_firstBLE && !bleKeyboard.isConnected()) {
-    _firstBLE = true;
-    printSerialMessage("Disconnected as a BT Keyboard");
-  }
-}
 
 // ===================================================================================
 
