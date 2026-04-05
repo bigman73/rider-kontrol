@@ -2,6 +2,8 @@
 
 #include <Arduino.h>
 
+extern bool _otaEnabled;
+
 void setupWifiOTA();
 
 /**
@@ -27,3 +29,18 @@ bool saveOta(const String& hostname, const String& password);
  * @return true if the namespace opened for write and strings were saved; false on failure.
  */
  bool saveWifiCredentials(const String& ssid, const String& password);
+
+ /**
+ * @brief Persists WiFi OTA enabled stated.
+ *
+ * @param enable     Enabled value to store.
+ * @return true if the namespace opened for write and value was saved; false on failure.
+ */
+bool saveOTAEnabled(const bool& enable);
+
+/**
+ * @brief Reads the OTA enable value from NVS (namespace PREFS_NS_OTA).
+ *
+ * @return Stored OTA enable state, false if the namespace is missing or the value is empty.
+ */
+bool loadOtaEnabled();

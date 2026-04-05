@@ -19,3 +19,8 @@
  * @note This function will not return, as ESP.restart() reboots the microcontroller.
  */
 void performControllerReboot();
+
+/**
+  Toggle the enabled state of the OTA.
+ */
+void toggleOTAEnabledState();

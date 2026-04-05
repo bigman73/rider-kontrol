@@ -40,7 +40,7 @@ void setupButtons() {
     RiderKontrolAction::ToggleFollow, 
     DMD2_KEYCODE_CENTER,
     false,
-    RiderKontrolAction::EnterDiagMode
+    RiderKontrolAction::EnableOTA
   );
   // B5
   _buttons[4] = new ButtonDefinition(GPIO_4, "B5", ButtonKind::Continous, 
@@ -223,7 +223,7 @@ void handleShortLongButton(ButtonDefinition* buttonDef) {
 
   // FIXME: sends sometimes multiple released true
   if (button->released() && !button->on() && 
-      (now - _lastButtonPressed < 500)) {
+      (now - _lastButtonPressed < SHORT_BUTTON_DURATION_MSEC)) {
     printFormattedSerialMessage("=> handleShortLongButton SHORT: %s,", buttonDef->name);
     printFormattedSerialMessage("kind: %u, action1: %u, action2: %u\n", 
       buttonDef->kind, 
@@ -253,24 +253,22 @@ void handleShortLongButton(ButtonDefinition* buttonDef) {
       buttonDef->action2
     );
 
-    _lastButtonPressed = 0;
     _isButtonPressed = false;
 
     if (buttonDef->isCodes1Media) {
       sendBluetoothMediaKey(buttonDef->keyCodes2);
-    } else {
-      if (buttonDef->action2 == RiderKontrolAction::EnterDiagMode &&
-          _programState == ProgramState::Normal) {
-        // Special case: Enter diagnostics
-        setDiagnosticsMode();
-      } else if (buttonDef->action2 == RiderKontrolAction::EnterDiagMode &&
-        _programState == ProgramState::Diag) {
-        // Special case: Exit diagnostics
-        setNormalMode();
+    } else if (buttonDef->action2 == RiderKontrolAction::EnableOTA) {
+      if ((now - _lastButtonPressed > OTA_BUTTON_DURATION_MSEC)) {
+        // OTA Toggle is a special case, requires a very long press
+        toggleOTAEnabledState();
       } else {
-        sendBluetoothKey(buttonDef->keyCodes2);
+        Serial.println("OTA Toggle requires a very long press. Try again.");
       }
+    } else {
+      sendBluetoothKey(buttonDef->keyCodes2);
     }
+
+    _lastButtonPressed = 0;
   }
 }
 
@@ -328,7 +326,7 @@ void handleButtons() {
   setupButtons();
 
   setupBluetooth();
-  // FIXME: Should only connect to Wifi when in OTA mode, normally OTA is not needed
+
   setupWifiOTA();
 }
 

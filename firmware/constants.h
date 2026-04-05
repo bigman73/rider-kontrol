@@ -10,7 +10,7 @@ template <typename T, size_t N>
 constexpr size_t arraySize(const T (&)[N]) { return N; }
 
 // Firmware metadata
-constexpr const char* FIRMWARE_VERSION = "0.1.0";
+constexpr const char* FIRMWARE_VERSION = "0.1.1";
 constexpr const char* FIRMWARE_NAME = "Rider Kontrol";
 
 constexpr const char* BLUETOOTH_DEVICE = "Rider Kontrol";
@@ -35,11 +35,14 @@ constexpr bool SERIAL_DEBUG = false;
 
 // LED timing
 constexpr unsigned long LED_BLINK_INTERVAL_MSEC = 2000;
-constexpr unsigned long LED_DIAG_BLINK_INTERVAL_MSEC = 300;
+constexpr unsigned long LED_DIAG_BLINK_INTERVAL_MSEC = 500;
+constexpr unsigned long LED_OTA_BLINK_INTERVAL_MSEC = 150;
 constexpr unsigned long EXT_LED_HEARTBEAT_CADENCE_MSEC = 5000;
 constexpr unsigned long EXT_LED_HEARTBEAT_DURATION_MSEC = 100;
 constexpr unsigned long EXT_LED_HEARTBEAT_COOLDOWN_MSEC = 2000;
 
+constexpr unsigned long EXT_LED_OTA_CADENCE_MSEC = 300;
+constexpr unsigned long EXT_LED_OTA_DURATION_MSEC = 150;
 
 // Pin assignments
 // Note: On Lolin C3 Mini v2.1.0 the onboard LED is RGB color and uses pin 7
@@ -61,6 +64,13 @@ constexpr uint8_t LED_DIAG_OFF_GREEN = 0;
 constexpr uint8_t LED_DIAG_OFF_RED = 0;
 constexpr uint8_t LED_DIAG_OFF_BLUE = 20;
 
+constexpr uint8_t LED_ON_OTA_RED = 10;
+constexpr uint8_t LED_ON_OTA_GREEN = 15;
+constexpr uint8_t LED_ON_OTA_BLUE = 0;
+constexpr uint8_t LED_OFF_OTA_RED = 20;
+constexpr uint8_t LED_OFF_OTA_GREEN = 15;
+constexpr uint8_t LED_OFF_OTA_BLUE = 0;
+
 constexpr uint8_t LED_BUTTON_PRESS_RED = 0;
 constexpr uint8_t LED_BUTTON_PRESS_GREEN = 70;
 constexpr uint8_t LED_BUTTON_PRESS_BLUE = 0;
@@ -74,6 +84,9 @@ constexpr unsigned long INITIAL_STABLILIZE_INTERVAL_MSEC = 100;
 
 constexpr unsigned long DIAG_MAX_TIME_MSEC = 180000;
 
+constexpr unsigned long SHORT_BUTTON_DURATION_MSEC = 500;
+constexpr unsigned long OTA_BUTTON_DURATION_MSEC = 3000;
+
 // DMD2 key codes - See README.md for more details
 constexpr uint8_t DMD2_KEYCODE_LEFT_ARROW[] = { KEY_LEFT_ARROW };
 constexpr uint8_t DMD2_KEYCODE_RIGHT_ARROW[] = { KEY_RIGHT_ARROW };
@@ -84,6 +97,7 @@ constexpr uint8_t DMD2_KEYCODE_ONLINE_LAYER[] = { '~' };
 constexpr uint8_t DMD2_KEYCODE_ZOOM_IN[] = { '+' };
 constexpr uint8_t DMD2_KEYCODE_ZOOM_OUT[] = { '-' };
 constexpr uint8_t DMD2_KEYCODE_PLAY_PAUSE[] = {8, 0}; // KEY_MEDIA_PLAY_PAUSE
+constexpr uint8_t DMD2_KEYCODE_PREV_TRACK[] = {2, 0}; // KEY_MEDIA_PREV_TRACK
 constexpr uint8_t DMD2_KEYCODE_NEXT_TRACK[] = {1, 0}; // KEY_MEDIA_NEXT_TRACK
 constexpr uint8_t DMD2_KEYCODE_MUTE[] = {16, 0}; // KEY_MEDIA_MUTE
 
@@ -99,7 +113,9 @@ enum class RiderKontrolAction {
     PlayPauseMedia, NextTrackMedia, MuteMedia, 
     PanUp, PanRight, PanDown, PanLeft, 
     ToggleFollow, ToggleLayer, 
-    EnterDiagMode, NA };
+    EnterDiagMode, 
+    EnableOTA,
+    NA };
 
 // Define the number of buttons
 constexpr int NUM_BUTTONS = 8;
@@ -123,12 +139,15 @@ constexpr const char* COMMAND_DIAG_CENTER = "ctr";
 constexpr const char* COMMAND_DIAG_SAT_LAYER = "sat";
 constexpr const char* COMMAND_DIAG_PLAY_MEDIA = "play";
 constexpr const char* COMMAND_DIAG_NEXT_MEDIA = "next";
+constexpr const char* COMMAND_DIAG_PREV_MEDIA = "prev";
 constexpr const char* COMMAND_DIAG_MUTE_MEDIA = "mute";
 constexpr const char* COMMAND_DIAG_VERSION = "version";
 constexpr const char* COMMAND_DIAG_REBOOT = "reboot";
 constexpr const char* COMMAND_DIAG_CREDS = "creds";
-constexpr const char* COMMAND_DIAG_OTA = "ota";
+constexpr const char* COMMAND_DIAG_OTASET = "otaset";
 constexpr const char* COMMAND_DIAG_SETWIFI = "wifi";
+
+constexpr const char* COMMAND_ENABLE_OTA = "ota";
 
 // WIFI OTA
 constexpr const int WIFI_CONNECT_TIMEOUT_MS = 5000;
@@ -144,3 +163,4 @@ constexpr const char* const PREFS_KEY_OTA_HOSTNAME = "hostname";
 constexpr const char* const DEFAULT_OTA_HOSTNAME = "rider-kontrol";
 constexpr const char* const PREFS_KEY_OTA_PASSWORD = "password";
 constexpr const char* const DEFAULT_OTA_PASSWORD = "admin";
+constexpr const char* const PREFS_KEY_WIFI_OTA_ENABLE = "ota-enable";

@@ -16,12 +16,12 @@ void setupBluetooth() {
 void handleBLEKeyboardConnection() {
   if (_firstBLE && bleKeyboard.isConnected()) {
     _firstBLE = false;
-    printSerialMessage("Connected as a BT Keyboard");
+    printSerialMessage("✅ Connected as a BT Keyboard");
   }
 
   if (!_firstBLE && !bleKeyboard.isConnected()) {
     _firstBLE = true;
-    printSerialMessage("Disconnected as a BT Keyboard");
+    printSerialMessage("❌ Disconnected as a BT Keyboard");
   }
 }
 

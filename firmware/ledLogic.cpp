@@ -3,12 +3,29 @@
 #include "constants.h"
 #include "vars.h"
 #include "utils.h"
+#include "wifiOTA.h"
 
 /**
   Controls the onboard LED
  */
  void controlOnboardLED() {
   unsigned long now = millis();
+
+  if (_otaEnabled) {
+    // Check if the LED blink interval has elapsed.
+    if (now - _lastBlinkTime >= LED_OTA_BLINK_INTERVAL_MSEC) {
+      // Toggle the led state.
+      _ledOn = !_ledOn;
+      // Set the onboard led colors for OTA.
+      neopixelWrite(ONBOARD_LED_PIN, 
+        _ledOn ? LED_ON_OTA_RED : LED_OFF_OTA_RED, 
+        _ledOn ? LED_ON_OTA_GREEN : LED_OFF_OTA_GREEN, 
+        _ledOn ? LED_ON_OTA_BLUE : LED_OFF_OTA_BLUE);
+
+      // Set the external led state.
+      _lastBlinkTime = now;
+    }
+  }
 
   if (_programState == ProgramState::Normal) {
     // Check if the LED blink interval has elapsed.
@@ -33,9 +50,7 @@
         _loopCount++;
       }
     }
-  }
-
-  if (_programState == ProgramState::Diag) {
+  } else if (_programState == ProgramState::Diag) {
      // Check if the LED diagnostics blink interval has elapsed.
      if (now - _lastBlinkTime >= LED_DIAG_BLINK_INTERVAL_MSEC) {
       // Toggle the led state.
@@ -74,6 +89,23 @@ void heartbeatExternalLED() {
   }
 }
 
+/**
+  Blink OTA on external LED
+ */
+ void otaExternalLED() {
+  unsigned long now = millis();
+
+  unsigned long currentTimeWindow = now % EXT_LED_OTA_CADENCE_MSEC;
+  if (currentTimeWindow >=0 && currentTimeWindow <= EXT_LED_OTA_DURATION_MSEC) {
+    // Blink the external LED for some MSEC every MSEC (e.g., 150 msec then rest 150 msec)
+    _externalLedHeartbeat = true;
+    digitalWrite(EXTERNAL_LED_PIN, HIGH);
+  } else if (currentTimeWindow > EXT_LED_OTA_DURATION_MSEC) {
+    _externalLedHeartbeat = false;
+    digitalWrite(EXTERNAL_LED_PIN, LOW);
+  }
+}
+
 /*
   Controls the external LED
 */
@@ -93,6 +125,11 @@ void controlExternalLED() {
   if (_externalLEDButtonOn && !_isButtonPressed) {
     _externalLEDButtonOn = false;
     digitalWrite(EXTERNAL_LED_PIN, LOW);
+  }
+
+  if (_otaEnabled) {
+    otaExternalLED();
+    return;
   }
 
   if (_programState == ProgramState::Normal) {

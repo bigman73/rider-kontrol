@@ -11,6 +11,21 @@ void performControllerReboot() {
   ESP.restart();
 }
 
+void toggleOTAEnabledState() {
+  if (!_otaEnabled) {
+    Serial.println("🟢 Enable OTA");
+    _lastBlinkTime = 0;
+    _otaEnabled = true;
+    saveOTAEnabled(true);
+    performControllerReboot();
+  } else {
+    Serial.println("🔴 Disable OTA");
+    _otaEnabled = false;
+    saveOTAEnabled(false);
+    performControllerReboot();
+  }
+}
+
 void processDiagMenu(String cmd, String arg1, String arg2) {
   if (cmd == COMMAND_DIAG_HELLO) {
     printFormattedSerialMessage("Welcome to %s!\n", FIRMWARE_NAME);
@@ -59,6 +74,9 @@ void processDiagMenu(String cmd, String arg1, String arg2) {
   } else if (cmd == COMMAND_DIAG_PLAY_MEDIA) {
     printSerialMessage("Command: Play/Pause Media");
     sendBluetoothMediaKey(DMD2_KEYCODE_PLAY_PAUSE);
+  } else if (cmd == COMMAND_DIAG_PREV_MEDIA) {
+    printSerialMessage("Command: Prev Track");
+    sendBluetoothMediaKey(DMD2_KEYCODE_PREV_TRACK);
   } else if (cmd == COMMAND_DIAG_NEXT_MEDIA) {
     printSerialMessage("Command: Next Track");
     sendBluetoothMediaKey(DMD2_KEYCODE_NEXT_TRACK);
@@ -69,12 +87,14 @@ void processDiagMenu(String cmd, String arg1, String arg2) {
     printFirmwareVersion();
   } else if (cmd == COMMAND_DIAG_CREDS) {
     printStoredWifiMasked();
-  } else if (cmd == COMMAND_DIAG_OTA) {
+  } else if (cmd == COMMAND_DIAG_OTASET) {
     if (arg1.isEmpty() || arg2.isEmpty()) {
-      Serial.println("Usage: ota <hostname> <password>");
+      Serial.println("Usage: otaset <hostname> <password>");
       return;
     }
     saveOta(arg1, arg2);
+  } else if (cmd == COMMAND_ENABLE_OTA) {
+    toggleOTAEnabledState();
   } else if (cmd == COMMAND_DIAG_SETWIFI) {
       if (arg1.isEmpty()) {
         Serial.println("Usage: wifi <ssid> <password>");

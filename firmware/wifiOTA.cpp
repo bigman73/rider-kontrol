@@ -9,6 +9,7 @@
 int _lastOTAProgress = 0;
 bool _otaLEDState = false;
 bool _otaServiceStarted = false;
+bool _otaEnabled = false;
 
 /**
  * @brief Reads the ArduinoOTA hostname from NVS (namespace PREFS_NS_OTA).
@@ -207,19 +208,6 @@ bool saveWifiCredentials(const String& ssid, const String& password) {
   return true;
 }
 
-
-void setupWifiOTA() {
-  Serial.println("Setting up Wifi OTA...");
-
-  String wifiSsid;
-  String wifiPassword;
-  if (loadWifiCredentials(wifiSsid, wifiPassword)) {
-    attemptWifiConnect();
-  } else {
-    Serial.println("No WiFi credentials persisted in NVS yet - use serial commands.");
-  }
-}
-
 /**
  * @brief Prints @p secret with only the first character visible; remaining characters are '*'.
  *
@@ -261,3 +249,40 @@ void printStoredWifiMasked() {
   Serial.println();
 }
 
+bool saveOTAEnabled(const bool& enable) {
+  Preferences prefs;
+  if (!prefs.begin(PREFS_NS_OTA, false)) {
+    Serial.printf("Preferences: could not open namespace for write %s\n", PREFS_NS_OTA);
+    return false;
+  }
+  prefs.putBool(PREFS_KEY_WIFI_OTA_ENABLE, enable);
+  prefs.end();
+  Serial.println("Saved Wifi OTA enable state to NVS.");
+  return true;
+}
+
+bool loadOtaEnabled() {
+  Preferences prefs;
+  if (!prefs.begin(PREFS_NS_OTA, true)) {
+    return false;
+  }
+  bool p = prefs.getBool(PREFS_KEY_WIFI_OTA_ENABLE, false);
+  prefs.end();
+  return p;
+}
+
+void setupWifiOTA() {
+  _otaEnabled = loadOtaEnabled();
+  Serial.printf("OTA Enabled: %d\n", (int) _otaEnabled);
+
+  if (_otaEnabled) {
+    Serial.println("Setting up Wifi OTA...");
+    String wifiSsid;
+    String wifiPassword;
+    if (loadWifiCredentials(wifiSsid, wifiPassword)) {
+      attemptWifiConnect();
+    } else {
+      Serial.println("No WiFi credentials persisted in NVS yet - use serial commands.");
+    }
+  }
+}
