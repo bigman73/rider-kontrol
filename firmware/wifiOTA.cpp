@@ -1,5 +1,4 @@
 #include "wifiOTA.h"
-#include <arduino.h>
 #include <WiFi.h>
 #include <Preferences.h>
 #include <ESPmDNS.h>
@@ -10,6 +9,21 @@
 int _lastOTAProgress = 0;
 bool _otaLEDState = false;
 bool _otaServiceStarted = false;
+
+/**
+ * @brief Reads the ArduinoOTA hostname from NVS (namespace PREFS_NS_OTA).
+ *
+ * @return Stored hostname, or DEFAULT_OTA_HOSTNAME if the namespace is missing or the value is empty.
+ */
+ static String loadOtaHostname() {
+  Preferences prefs;
+  if (!prefs.begin(PREFS_NS_OTA, true)) {
+    return String(DEFAULT_OTA_HOSTNAME);
+  }
+  String hostname = prefs.getString(PREFS_KEY_OTA_HOSTNAME, "");
+  prefs.end();
+  return hostname.isEmpty() ? String(DEFAULT_OTA_HOSTNAME) : hostname;
+}
 
 /**
  * @brief Reads the ArduinoOTA password from NVS (namespace PREFS_NS_OTA).
@@ -26,14 +40,11 @@ bool _otaServiceStarted = false;
   return p.isEmpty() ? String(DEFAULT_OTA_PASSWORD) : p;
 }
 
-/**
- * @brief Writes the ArduinoOTA password to NVS.
- *
- * @param password Non-empty OTA password to store.
- * @return true on success; false if password is empty or NVS write fails.
- * @note If OTA is already running, a reboot is required for the new password to apply.
- */
- static bool saveOtaPassword(const String& password) {
+bool saveOta(const String& hostname, const String& password) {
+  if (hostname.isEmpty()) {
+    Serial.println("OTA hostname cannot be empty.");
+    return false;
+  }
   if (password.isEmpty()) {
     Serial.println("OTA password cannot be empty.");
     return false;
@@ -43,11 +54,12 @@ bool _otaServiceStarted = false;
     Serial.println("Preferences: could not open OTA namespace for write");
     return false;
   }
+  prefs.putString(PREFS_KEY_OTA_HOSTNAME, hostname);
   prefs.putString(PREFS_KEY_OTA_PASSWORD, password);
   prefs.end();
-  Serial.println("Saved OTA password to NVS.");
+  Serial.println("Saved OTA details to NVS.");
   if (_otaServiceStarted) {
-    Serial.println("Reboot for the new OTA password to take effect.");
+    Serial.println("Reboot for the new OTA details to take effect.");
   }
   return true;
 }
@@ -79,14 +91,7 @@ bool _otaServiceStarted = false;
   return !outSsid.isEmpty();
 }
 
-/**
- * @brief Persists WiFi SSID and password to NVS under PREFS_NS_WIFI.
- *
- * @param ssid     Network name to store.
- * @param password Network password (may be empty for open networks).
- * @return true if the namespace opened for write and strings were saved; false on failure.
- */
- static bool saveWifiCredentials(const String& ssid, const String& password) {
+bool saveWifiCredentials(const String& ssid, const String& password) {
   Preferences prefs;
   if (!prefs.begin(PREFS_NS_WIFI, false)) {
     Serial.println("Preferences: could not open namespace for write");
@@ -110,12 +115,11 @@ bool _otaServiceStarted = false;
     return;
   }
 
-  // Port defaults to 3232
-  // ArduinoOTA.setPort(3232);
+  ArduinoOTA.setPort(OTA_PORT);
 
   // Hostname: must be valid mDNS (letters, digits, hyphens only – no spaces).
-  const char* otaHostname = "rider-kontrol";
-  ArduinoOTA.setHostname(otaHostname);
+  String otaHostname = loadOtaHostname();
+  ArduinoOTA.setHostname(otaHostname.c_str());
   if (!MDNS.begin(otaHostname)) {
     Serial.println("mDNS failed to start");
   }
@@ -163,9 +167,7 @@ bool _otaServiceStarted = false;
 
   ArduinoOTA.begin();
   _otaServiceStarted = true;
-  Serial.printf("OTA Ready. Version: %s\n", FIRMWARE_VERSION);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.printf("OTA Ready, mDNS Hostname: %s, IP address: %s\n", otaHostname.c_str(), WiFi.localIP().toString());
 }
 
 /**
@@ -177,7 +179,7 @@ bool _otaServiceStarted = false;
   String wifiSsid;
   String wifiPassword;
   if (!loadWifiCredentials(wifiSsid, wifiPassword)) {
-    Serial.println("connect: no Wifi credentials stored in NVS. Use serial monitor to set ssid and password");
+    Serial.println("connect: no Wifi credentials stored in NVS. Use serial monitor wifi command to set ssid and password");
     return false;
   }
 
@@ -217,3 +219,45 @@ void setupWifiOTA() {
     Serial.println("No WiFi credentials persisted in NVS yet - use serial commands.");
   }
 }
+
+/**
+ * @brief Prints @p secret with only the first character visible; remaining characters are '*'.
+ *
+ * @param secret String to mask; if empty, prints nothing.
+ */
+ static void printMaskedSerial(const String& secret) {
+  if (secret.isEmpty()) {
+    return;
+  }
+  Serial.print(secret.charAt(0));
+  for (size_t i = 1; i < secret.length(); i++) {
+    Serial.print('*');
+  }
+}
+
+void printStoredWifiMasked() {
+  String ssid;
+  String pass;
+  if (!loadWifiCredentials(ssid, pass)) {
+    Serial.println("NVS: no credentials stored yet.");
+    return;
+  }
+  Serial.print("Stored SSID: ");
+  Serial.println(ssid);
+  Serial.print("Stored password: ");
+  if (pass.isEmpty()) {
+    Serial.println("(empty / open network)");
+  } else {
+    printMaskedSerial(pass);
+    Serial.println();
+  }
+
+  String otaHostname = loadOtaHostname();
+  Serial.printf("OTA Hostname: %s\n", otaHostname);
+
+  String otaPass = loadOtaPassword();
+  Serial.print("OTA password (active): ");
+  printMaskedSerial(otaPass);
+  Serial.println();
+}
+

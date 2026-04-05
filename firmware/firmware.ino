@@ -64,8 +64,6 @@ void setupButtons() {
   );
 }
 
-
-
 /**
  * @brief Sets the program state to Diagnostics Mode and initializes mode-specific variables.
  *
@@ -76,7 +74,7 @@ void setDiagnosticsMode() {
   _programState = ProgramState::Diag;
   _lastBlinkTime = 0;
   _diagEnterTime = millis();
-  printSerialMessage("Program State: Diagnostics Mode");
+  printSerialMessage("*** Program State: Diagnostics Mode");
 }
 
 /**
@@ -88,7 +86,7 @@ void setDiagnosticsMode() {
 void setNormalMode() {
   _programState = ProgramState::Normal;
   _lastBlinkTime = 0;
-  printSerialMessage("Program State: Normal Mode");
+  printSerialMessage("*** Program State: Normal Mode");
 }
 
 /**
@@ -99,16 +97,24 @@ void handleSerialInput() {
     // Read input until a newline character is received
     String input = Serial.readStringUntil('\n');
     input.trim(); // Clean up spaces or carriage returns
-    input.toLowerCase(); // Make it case-insensitive
 
-    if (input == "diag") {
+    String cmd;
+    String rest;
+    String arg1;
+    String arg2;
+    parseSerialCommand(input, cmd, rest, arg1, arg2);
+    if (cmd.length() == 0) {
+      return;
+    }
+
+    if (cmd == COMMAND_MODE_DIAG) {
       setDiagnosticsMode();
-    } else if (input == "normal") {
+    } else if (cmd == COMMAND_MODE_NORMAL) {
       setNormalMode();
-    } else if (input == "state") {
+    } else if (cmd == COMMAND_MODE_STATE) {
       printFormattedSerialMessage("Current program state: %u\n", _programState);
     } else if (_programState == ProgramState::Diag) {
-      processDiagMenu(input);
+      processDiagMenu(cmd, arg1, arg2);
     } else {
       printFormattedSerialMessage("Unknown command: %s\n", input);
     }
@@ -314,14 +320,16 @@ void handleButtons() {
   Serial.begin(SERIAL_BAUD_RATE);
   delay(SERIAL_TIMEOUT_MSEC);  // Wait for serial port to connect and initialize
 
+  printFirmwareVersion();
+
+  // TODO: Make a diagnostics command
   printPartitionInfo();
 
   setupButtons();
 
   setupBluetooth();
+  // FIXME: Should only connect to Wifi when in OTA mode, normally OTA is not needed
   setupWifiOTA();
-
-  printFirmwareVersion();
 }
 
 /**

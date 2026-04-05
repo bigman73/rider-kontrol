@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# TODO: Use mDNS
 SKETCH_NAME="firmware.ino"
-IP_ADDRESS="192.168.1.239"
+# TODO: Use mDNS, not a direct ip address
+IP_ADDRESS="192.168.1.236"
+# IP_ADDRESS="rider-kontrol-701"
 ESP32_VERSION="2.0.17"
 OTA_TOOL="$HOME/Library/Arduino15/packages/esp32/hardware/esp32/$ESP32_VERSION/tools/espota.py"
 OTA_PORT=3232
 # TODO: Change to the OTA password you set via the serial command line (command: otapass)
-OTA_PASSWORD="!!TODO!!"
+OTA_PASSWORD="test"
 
 echo "--- 🔵 Performing OTA Upload of firmware to $IP_ADDRESS ---"
 

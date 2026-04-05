@@ -1,12 +1,14 @@
 #pragma once
 #include <Arduino.h>
 
+
+
 /**
   Process the diagnostics menu commands
 
-  * @param input The serial command input.
+  * @param cmd The command.
  */
- void processDiagMenu(String input);
+ void processDiagMenu(String cmd, String arg1, String arg2);
  
 /**
  * @brief Reboots the controller by printing a message, delaying, and calling ESP.restart().

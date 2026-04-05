@@ -47,19 +47,19 @@ constexpr uint8_t ONBOARD_LED_PIN = GPIO_7;
 constexpr uint8_t EXTERNAL_LED_PIN = GPIO_10;
 
 // LED color values
-constexpr uint8_t LED_ON_RED = 20;
-constexpr uint8_t LED_ON_GREEN = 20;
-constexpr uint8_t LED_ON_BLUE = 20;
+constexpr uint8_t LED_ON_RED = 5;
+constexpr uint8_t LED_ON_GREEN = 5;
+constexpr uint8_t LED_ON_BLUE = 5;
 constexpr uint8_t LED_OFF_RED = 0;
-constexpr uint8_t LED_OFF_GREEN = 20;
+constexpr uint8_t LED_OFF_GREEN = 5;
 constexpr uint8_t LED_OFF_BLUE = 0;
 
-constexpr uint8_t LED_DIAG_ON_RED = 40;
+constexpr uint8_t LED_DIAG_ON_RED = 20;
 constexpr uint8_t LED_DIAG_ON_GREEN = 0;
-constexpr uint8_t LED_DIAG_ON_BLUE = 40;
+constexpr uint8_t LED_DIAG_ON_BLUE = 20;
 constexpr uint8_t LED_DIAG_OFF_GREEN = 0;
 constexpr uint8_t LED_DIAG_OFF_RED = 0;
-constexpr uint8_t LED_DIAG_OFF_BLUE = 40;
+constexpr uint8_t LED_DIAG_OFF_BLUE = 20;
 
 constexpr uint8_t LED_BUTTON_PRESS_RED = 0;
 constexpr uint8_t LED_BUTTON_PRESS_GREEN = 70;
@@ -107,6 +107,9 @@ constexpr int NUM_BUTTONS = 8;
 constexpr int REPEAT_PUSH_INTERVAL1_MSEC = 650;
 constexpr int REPEAT_PUSH_INTERVAL2_MSEC = 150;
 
+constexpr const char* COMMAND_MODE_DIAG = "diag";
+constexpr const char* COMMAND_MODE_NORMAL = "normal";
+constexpr const char* COMMAND_MODE_STATE = "state";
 constexpr const char* COMMAND_DIAG_HELLO = "hello";
 constexpr const char* COMMAND_DIAG_UP = "up";
 constexpr const char* COMMAND_DIAG_DOWN = "down";
@@ -123,14 +126,21 @@ constexpr const char* COMMAND_DIAG_NEXT_MEDIA = "next";
 constexpr const char* COMMAND_DIAG_MUTE_MEDIA = "mute";
 constexpr const char* COMMAND_DIAG_VERSION = "version";
 constexpr const char* COMMAND_DIAG_REBOOT = "reboot";
- 
+constexpr const char* COMMAND_DIAG_CREDS = "creds";
+constexpr const char* COMMAND_DIAG_OTA = "ota";
+constexpr const char* COMMAND_DIAG_SETWIFI = "wifi";
+
 // WIFI OTA
-constexpr const int WIFI_CONNECT_TIMEOUT_MS = 20000;
+constexpr const int WIFI_CONNECT_TIMEOUT_MS = 5000;
+constexpr const int OTA_PORT = 3232;
+
 // NVS namespace and keys for WiFi credentials (write once via another sketch or NVS tool).
 constexpr const char* const PREFS_NS_WIFI = "rkwifi";
 constexpr const char* const PREFS_KEY_SSID = "ssid";
 constexpr const char* const PREFS_KEY_PASSWORD = "password";
 
 constexpr const char* const PREFS_NS_OTA = "rkota";
+constexpr const char* const PREFS_KEY_OTA_HOSTNAME = "hostname";
+constexpr const char* const DEFAULT_OTA_HOSTNAME = "rider-kontrol";
 constexpr const char* const PREFS_KEY_OTA_PASSWORD = "password";
 constexpr const char* const DEFAULT_OTA_PASSWORD = "admin";
