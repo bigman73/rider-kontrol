@@ -28,6 +28,7 @@ void handleBLEKeyboardConnection() {
 void sendBluetoothKey(const uint8_t* keyCodes) {
   if (!keyCodes) {
     printSerialMessage("Error (sendBluetoothKey): keyCodes is null");
+    return;
   }
 
   // Use the buffer overload

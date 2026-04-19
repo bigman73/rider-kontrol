@@ -25,9 +25,7 @@
       // Set the external led state.
       _lastBlinkTime = now;
     }
-  }
-
-  if (_programState == ProgramState::Normal) {
+  } else if (_programState == ProgramState::Normal) {
     // Check if the LED blink interval has elapsed.
     if (now - _lastBlinkTime >= LED_BLINK_INTERVAL_MSEC) {
       // Toggle the led state.

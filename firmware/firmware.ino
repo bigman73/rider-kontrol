@@ -221,7 +221,6 @@ void handleShortLongButton(ButtonDefinition* buttonDef) {
     _isButtonPressed = true;
   }
 
-  // FIXME: sends sometimes multiple released true
   if (button->released() && !button->on() && 
       (now - _lastButtonPressed < SHORT_BUTTON_DURATION_MSEC)) {
     printFormattedSerialMessage("=> handleShortLongButton SHORT: %s,", buttonDef->name);
@@ -306,7 +305,7 @@ void handleButtons() {
  * The setup function runs once when you press reset or power the board.
  */
  void setup() {
-  delay(INITIAL_STABLILIZE_INTERVAL_MSEC); // Let the chip stabilize
+  delay(INITIAL_STABILIZE_INTERVAL_MSEC); // Let the chip stabilize
 
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(ONBOARD_LED_PIN, OUTPUT);

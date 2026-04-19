@@ -79,8 +79,8 @@ constexpr uint8_t LED_BUTTON_PRESS_BLUE = 0;
 constexpr uint8_t BLUETOOTH_BATT_LEVEL_DEFAULT = 100;
 
 
-// Initial time to stablize before setup starts
-constexpr unsigned long INITIAL_STABLILIZE_INTERVAL_MSEC = 100;
+// Initial time to stabilize before setup starts
+constexpr unsigned long INITIAL_STABILIZE_INTERVAL_MSEC = 100;
 
 constexpr unsigned long DIAG_MAX_TIME_MSEC = 180000;
 
@@ -96,7 +96,7 @@ constexpr uint8_t DMD2_KEYCODE_CENTER[] = { '0' };
 constexpr uint8_t DMD2_KEYCODE_ONLINE_LAYER[] = { '~' };
 constexpr uint8_t DMD2_KEYCODE_ZOOM_IN[] = { '+' };
 constexpr uint8_t DMD2_KEYCODE_ZOOM_OUT[] = { '-' };
-constexpr uint8_t DMD2_KEYCODE_PLAY_PAUSE[] = {8, 0}; // KEY_MEDIA_PLAY_PAUSE
+constexpr uint8_t DMD2_KEYCODE_PLAY_PAUSE[] = {8, 0}; // KEY_MEDIA_PLAY_PAUSE, Source: HID usage tables
 constexpr uint8_t DMD2_KEYCODE_PREV_TRACK[] = {2, 0}; // KEY_MEDIA_PREV_TRACK
 constexpr uint8_t DMD2_KEYCODE_NEXT_TRACK[] = {1, 0}; // KEY_MEDIA_NEXT_TRACK
 constexpr uint8_t DMD2_KEYCODE_MUTE[] = {16, 0}; // KEY_MEDIA_MUTE
@@ -162,5 +162,6 @@ constexpr const char* const PREFS_NS_OTA = "rkota";
 constexpr const char* const PREFS_KEY_OTA_HOSTNAME = "hostname";
 constexpr const char* const DEFAULT_OTA_HOSTNAME = "rider-kontrol";
 constexpr const char* const PREFS_KEY_OTA_PASSWORD = "password";
-constexpr const char* const DEFAULT_OTA_PASSWORD = "admin";
+// Note: Change to some other value if you want a different more secure default value
+constexpr const char* const DEFAULT_OTA_PASSWORD = "rk0t4-2026-secure";
 constexpr const char* const PREFS_KEY_WIFI_OTA_ENABLE = "ota-enable";

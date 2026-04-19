@@ -102,7 +102,7 @@ void processDiagMenu(String cmd, String arg1, String arg2) {
       }
 
       if (saveWifiCredentials(arg1, arg2)) {
-        Serial.print("Wifi credentials uppated. SSID set to: ");
+        Serial.print("Wifi credentials updated. SSID set to: ");
         Serial.print(arg1);
         Serial.println(", password updated.");
       }

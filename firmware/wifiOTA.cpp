@@ -6,7 +6,7 @@
 #include <ArduinoOTA.h>
 #include "constants.h"
 
-int _lastOTAProgress = 0;
+unsigned int _lastOTAProgress = 0;
 bool _otaLEDState = false;
 bool _otaServiceStarted = false;
 bool _otaEnabled = false;
