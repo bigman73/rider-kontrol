@@ -20,8 +20,10 @@ There’s nothing more frustrating (or dangerous) than trying to poke at a touch
 - Weather Resistant: Designed to be housed in a 3D-printed, sealed enclosure.
 - Low cost: DYI project with fully open source firmware
 
-
 ## 🏍️ Usage
+
+<img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets/rider-kontrol-assembled.jpeg" alt="Assembled Unit" width="300" />
+
 TODO: Image + video of Rider Kontrol mounted on a motorcycle
 
 ## 🛠️ Hardware

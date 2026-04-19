@@ -6,9 +6,9 @@ Credits to other projects and assets
 
 ## BarButtons
 
-The [BarButtons](https://jaxeadv.com/barbuttons/) project has greatly inspired this project. We used the enclosure design as a baseline, but have plans for another much slimmer design.
+The [BarButtons](https://jaxeadv.com/barbuttons/) project has greatly inspired this project. The enclosure design was used as for the prototype, but there are plans for another much slimmer design.
 
-Note: The firmware of BarButtons was not used, a different approach was taken, and Rider Kontrol firmware is written from scratch.
+Note: The firmware of BarButtons was not used, a very different approach was taken, and Rider Kontrol firmware is written from scratch.
 
 # Third-Party Libraries and Tools
 
