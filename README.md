@@ -24,7 +24,9 @@ There’s nothing more frustrating (or dangerous) than trying to poke at a touch
 
 <img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets/rider-kontrol-assembled.jpeg" alt="Assembled Unit" width="300" />
 
-TODO: Image + video of Rider Kontrol mounted on a motorcycle
+<img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets//Users/yuvalnaveh/development/rider-kontrol/assets/rider-kontrol-mount-701.jpeg" alt="Mounted on a Husqvarna 701 Enduro" width="300" />
+
+TODO: video of Rider Kontrol mounted on a motorcycle
 
 ## 🛠️ Hardware
 
