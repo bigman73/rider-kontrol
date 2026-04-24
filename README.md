@@ -22,9 +22,9 @@ There’s nothing more frustrating (or dangerous) than trying to poke at a touch
 
 ## 🏍️ Usage
 
-<img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets/rider-kontrol-assembled.jpeg" alt="Assembled Unit" width="300" />
+<img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets/rider-kontrol-assembled.jpeg" alt="Assembled Unit" width="500" />
 
-<img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets/rider-kontrol-mount-701.jpeg" alt="Mounted on a Husqvarna 701 Enduro" width="300" />
+<img src="https://raw.githubusercontent.com/bigman73/rider-kontrol/main/assets/rider-kontrol-mount-701.jpeg" alt="Mounted on a Husqvarna 701 Enduro" width="500" />
 
 TODO: video of Rider Kontrol mounted on a motorcycle
 
